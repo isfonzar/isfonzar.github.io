@@ -2,7 +2,7 @@
 layout: post
 title:  "What is PSR in PHP?"
 date:   2019-08-10 08:25:31 +0200
-categories: php programming
+categories: programming php
 ---
 
 # What is PSR in PHP?
