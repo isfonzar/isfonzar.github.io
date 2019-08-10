@@ -1,18 +1,18 @@
 ---
 layout: page
-title: About
+title: About me
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+![Icaro Souza Fonzar](/assets/isfonzar.jpg)
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+My name is Icaro Souza Fonzar, I'm a backend engineer currently based in Berlin, Germany. 
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+I have over 5 years of experience developing high-available and reliable APIs, programming sustainable libraries
+and architecturing systems and services.
 
+You can find some of my projects and libraries at [Github][isfonzar-github] 
+and more information about me on my [Linkedin page][isfonzar-linkedin].
 
-[jekyll-organization]: https://github.com/jekyll
+[isfonzar-github]: https://github.com/isfonzar
+[isfonzar-linkedin]: https://www.linkedin.com/in/isfonzar/
