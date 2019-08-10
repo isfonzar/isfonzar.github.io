@@ -4,9 +4,7 @@ title: About me
 permalink: /about/
 ---
 
-![Icaro Souza Fonzar](/assets/isfonzar.jpg)
-
-My name is Icaro Souza Fonzar, I'm a backend engineer currently based in Berlin, Germany. 
+I'm a backend engineer currently based in Berlin, Germany. 
 
 I have over 5 years of experience developing high-available and reliable APIs, programming sustainable libraries
 and architecturing systems and services.
