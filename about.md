@@ -1,7 +1,7 @@
 ---
 layout: page
 title: About me
-permalink: /about/
+permalink: /about
 ---
 
 I'm a backend engineer currently based in Berlin, Germany. 
