@@ -1,32 +1,34 @@
 ---
 layout: post
-title:  "Kubernetes Draft"
-date:   2019-12-27 08:25:31 +0200
+title:  "Kubernetes Cluster from Scratch - Part 1"
+date:   2020-05-05 16:13:31 +0200
 categories: infrastructure devops kubernetes
 ---
 
-# Kubernetes Cluster from Scratch - Part 1 - Certificates
+# Kubernetes Cluster from Scratch - Part 1
 
 This post is based on both [Kubernetes The Hard Way](https://github.com/kelseyhightower/kubernetes-the-hard-way) by [Kelsey Hightower](https://github.com/kelseyhightower) and the homonymous material from [William Boyd](https://linuxacademy.com/course/kubernetes-the-hard-way/).
 
-This is not intended as a substitute for the aforementioned content, and I would strongly advise to use them as reference instead, as they are both more complete and more didactic than the content present here.
+This is not intended as a substitute for the aforementioned content, and I would strongly advise to use them as reference instead, as they are both more complete than the content present here.
 
-With that out of the way, the intent of this post is, first, a cheatsheet so I can quickly refer to in the future, and second, because I've found out that I learn best by writting down what I'm doing and explaining it "to someone else", in this case, the reader.
+### Why set up a Kubernetes Cluster from Scratch?
 
-### Why?
+> "Kubernetes The Hard Way is optimized for learning, which means taking the long route to ensure you understand each task required to bootstrap a Kubernetes cluster" 
+>
+> \- Kelsey Hightower, Kubernetes the Hard Way
 
-I decided to learn how to set up a kubernetes cluster from scratch because I was unsatisfied of using it as part of my job and not understanding how it works.
+I decided to learn how to set up a kubernetes cluster from scratch because I was unsatisfied of using it without understanding exactly how it works. I believe that setting everything up from scratch is a great exercise and opportunity to learn more about how Kubernetes works.
 
-## Get Started
+## Geting Started
 
-- To set-up a kubernetes cluster from scratch you'll need 5 servers in total
+- To set-up a kubernetes cluster you'll need 5 servers in total
   - 2 will be used for the kubernetes controllers
   - 2 for the kubernetes worker nodes
   - 1 for the kubernetes API load balancer
 
-It's possible, for the sake of learning, to use less servers. The steps present here work just as fine with 1 of each kind of server as well as 10 or more. Also for the sake of learning, it's good to have at least some redundancy in the controllers and in the workers. Kelsey Hightower recommends 3 of each, while William Boyd recommends 2 of each, I decided to go with 2 as I believe it's the minimum to get the most of the concepts in those guide.
+It's possible, for the sake of learning, to use less servers. The steps present here work just as fine with 1 of each kind of server as well as 10 or more. Also for the sake of learning, it's good to have at least some redundancy in the controllers and in the workers. Kelsey Hightower recommends 3 of each, while William Boyd works with 2 of each, I decided to go with 2 as I believe it's the minimum to get the most of the concepts.
 
-After provisioning all the servers, I recommend creating environment variables, as most of the commands will use those and it will save you the work of having to replace them in the commands.
+After provisioning all the servers and creating the users in them, I recommend creating the following environment variables on your workstation, as most of the commands will use those and it will save you the work of having to replace them.
 
 ```bash
 CONTROLLER0_HOST=controller0.mylabserver.com
@@ -39,37 +41,18 @@ WORKER1_HOST=worker1.mylabserver.com
 WORKER1_IP=172.34.1.1
 API_HOST=kubernetes.mylabserver.com
 API_IP=172.34.2.0
-```
 
-TODO: Create users for all the instances.
+# Specify the user you will be connecting to those servers with
+CLOUD_USER=cloud_user
+```
 
 ## Setting up the Certificates
 
-Certificate Authority (CA)
-
-We will provision a certificate authority
-
-We use certificates to confirm identity, they are used to prove that you are who you say you are.
-
-A certificate authority provides the ability to confirm that a certificate is valid.
-
-### Why are certificates needed?
-
-Kubernetes uses certificates for a variety of security functions. (rephrase, expand)
-
-### What certificates are needed?
-
-- Client certificates: these certificates will provide client authentication for various users: adminm kube-controller-manager, kube-proxy, etc. All of these components need to authenticate securarily with the Kubernetes API.
-
-- Kubernetes API Server: The API also needs to confirm its identity to the clients. So both client and server are able to verify each other.
-
-- Service Account Key Pair: Allow users to authenticate.
+The first step to set up our Kubernetes Cluster is to create the [Public key infrastructure](https://en.wikipedia.org/wiki/Public_key_infrastructure) to manage the security and authentication in the cluster so nodes can communicate with each other and also with the Kubernetes API.
 
 ### Requirements
 
-<details>
-<summary>Install <a href="https://github.com/cloudflare/cfssl" >cfssl</a> on your workstation.</summary>
-<p>
+Install Cloudflare's [cfssl](https://github.com/cloudflare/cfssl) on your workstation.
 
 ```bash
 $ wget -q --show-progress --https-only --timestamping \
@@ -84,18 +67,15 @@ $ sudo mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
 $ cfssl version # check the installation
 ```
 
-</p>
-</details>  
+`cfssl` is Cloudflare's open-source PKI tool that will provide us with all the functionalities we need to set up the Certificate Authority (CA) and the certificates themselves.
 
 ### Provisioning the Certificate Authority
 
-<details>
-<summary>Create the config files for the certificate authority</summary>
-<p>
+Create the config files for the certificate authority
 
 ```bash
 # Config file for the certificate authority
-$ cat > ca-config.json << EOF
+cat > ca-config.json << EOF
 {
   "signing": {
     "default": {
@@ -112,7 +92,7 @@ $ cat > ca-config.json << EOF
 EOF
 
 # Certificate signing request
-$ cat > ca-csr.json << EOF
+cat > ca-csr.json << EOF
 {
   "CN": "Kubernetes",
   "key": {
@@ -131,23 +111,21 @@ $ cat > ca-csr.json << EOF
 }
 EOF
 
-
-$ cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+# Generate the certificates
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 ```
 
-</p>
-</details>  
+As a result, we should now have the files `ca-key.pem` and `ca.pem`, the private certificate and the public certificate respectively. 
 
-As a result, we should now have the files `ca.csr`, `ca-key.pem` and `ca.pem`, the certiificate authority, the private certificate and the public certificate respectively. 
+### Client and Server Certificates
+
+Now that we have our CA, we can use it to generate the client and server certificates.
 
 #### Generate the admin certificate
 
-<details>
-<summary>Generate the admin certificate</summary>
-<p>
-
 ```bash
-$ cat > admin-csr.json << EOF
+# Create admin certificate signing request
+cat > admin-csr.json << EOF
 {
   "CN": "admin",
   "key": {
@@ -166,8 +144,8 @@ $ cat > admin-csr.json << EOF
 }
 EOF
 
-# Using the previous created certificate, we will sign the new ceretificate
-$ cfssl gencert \
+# Generate admin certificate
+cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
@@ -175,19 +153,15 @@ $ cfssl gencert \
   admin-csr.json | cfssljson -bare admin
 ```
 
-</p>
-</details>  
+As a result, we should now have the files `admin-key.pem` and `admin.pem`.
 
-As a result, we should now have the files `admin.csr`, `admin-key.pem` and `admin.pem`.
+#### Generate the clients certificates
 
-Now, let's generate the certificates for the clients.
-
-<details>
-<summary>Generate certificates for the workers</summary>
-<p>
+Generate certificates for the workers, in case you haven't set up the environment variables in the beginning of this post, replace them in the following commands.
 
 ```bash
-$ cat > ${WORKER0_HOST}-csr.json << EOF
+# Certificate signing request for the first worker
+cat > ${WORKER0_HOST}-csr.json << EOF
 {
   "CN": "system:node:${WORKER0_HOST}",
   "key": {
@@ -206,7 +180,8 @@ $ cat > ${WORKER0_HOST}-csr.json << EOF
 }
 EOF
 
-$ cfssl gencert \
+# Generate first worker's certificate
+cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
@@ -214,7 +189,8 @@ $ cfssl gencert \
   -profile=kubernetes \
   ${WORKER0_HOST}-csr.json | cfssljson -bare ${WORKER0_HOST}
 
-$ cat > ${WORKER1_HOST}-csr.json << EOF
+# Certificate signing request for the second worker
+cat > ${WORKER1_HOST}-csr.json << EOF
 {
   "CN": "system:node:${WORKER1_HOST}",
   "key": {
@@ -233,20 +209,17 @@ $ cat > ${WORKER1_HOST}-csr.json << EOF
 }
 EOF
 
-$ cfssl gencert \
+# Generate second worker's certificate
+cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
   -hostname=${WORKER1_IP},${WORKER1_HOST} \
   -profile=kubernetes \
   ${WORKER1_HOST}-csr.json | cfssljson -bare ${WORKER1_HOST}
-
 ```
 
-</p>
-</details> 
-
-After run, we should have the public and private keys for both of the workers.
+After executed, we should have the public and private keys for both of the workers.
 
 <details>
 <summary>Generate certificate for the Kube Controller Manager</summary>
