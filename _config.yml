@@ -24,7 +24,7 @@ github_username:  isfonzar
 
 # Build settings
 markdown: kramdown
-remote_theme: isfonzar/git-wiki-skeleton
+theme: minima
 plugins:
   - jekyll-feed
 
