@@ -1,0 +1,24 @@
+I"l<p>This is the full table of contents of the blog organized by topics and fields.</p>
+
+<ul>
+  <li>Security
+    <ul>
+      <li><a href="https://isfonzar.com/security/cryptography/">Cryptography</a>
+        <ul>
+          <li><a href="https://isfonzar.com/security/how-to-generate-and-exchange-ssh-keys/">How to generate and exchange SSH keys</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Programming
+    <ul>
+      <li>PHP
+        <ul>
+          <li><a href="https://isfonzar.com/programming/php/understanding-psr-in-php/">Understanding PSR in PHP</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+:ET

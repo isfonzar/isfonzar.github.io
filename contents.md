@@ -8,6 +8,7 @@ This is the full table of contents of the blog organized by topics and fields.
 
 - Security
     - [Cryptography][cryptography]
+        - [How to generate and exchange SSH keys][how-to-generate-and-exchange-ssh-keys]
 
 - Programming
     - PHP
@@ -16,3 +17,4 @@ This is the full table of contents of the blog organized by topics and fields.
 
 [cryptography]: https://isfonzar.com/security/cryptography/
 [understanding-psr-in-php]: https://isfonzar.com/programming/php/understanding-psr-in-php/
+[how-to-generate-and-exchange-ssh-keys]: https://isfonzar.com/security/how-to-generate-and-exchange-ssh-keys/
