@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Cryptography | Icaro’s Tech Blog</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Cryptography" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The word cryptography is derived from 2 greek words: kryptós meaning “secret” or “hidden” and graphein which means “writings”." />
+<meta property="og:description" content="The word cryptography is derived from 2 greek words: kryptós meaning “secret” or “hidden” and graphein which means “writings”." />
+<link rel="canonical" href="http://localhost:4000/security/cryptography/" />
+<meta property="og:url" content="http://localhost:4000/security/cryptography/" />
+<meta property="og:site_name" content="Icaro’s Tech Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-05T20:00:00+02:00" />
+<script type="application/ld+json">
+{"headline":"Cryptography","dateModified":"2020-05-05T20:00:00+02:00","datePublished":"2020-05-05T20:00:00+02:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/security/cryptography/"},"url":"http://localhost:4000/security/cryptography/","description":"The word cryptography is derived from 2 greek words: kryptós meaning “secret” or “hidden” and graphein which means “writings”.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Icaro's Tech Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Icaro&#39;s Tech Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About me</a><a class="page-link" href="/contents">Contents</a><a class="page-link" href="/quotes">Quotes</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Cryptography</h1>
+  </header>
+
+  <div class="post-content">
+    <p>The word <code class="highlighter-rouge">cryptography</code> is derived from 2 greek words: <em><code class="highlighter-rouge">kryptós</code></em> meaning “secret” or “hidden” and <em><code class="highlighter-rouge">graphein</code></em> which means “writings”.</p>
+
+<p>Cryptography is the practice and study of techniques for secure communication. The objectives of Cryptography are:</p>
+
+<ul>
+  <li>
+    <p>Privacy: Ensuring that data that is private remains private.</p>
+  </li>
+  <li>
+    <p>Authentication: Cryptography helps us confirm that individuals are who they say they are.</p>
+  </li>
+  <li>
+    <p>Integrity: Cryptography helps us assure that the data has not been modified by a third-party.</p>
+  </li>
+  <li>
+    <p>Non-repudiation: Both the sender and the receiver can be sure of that status of the other one in a transaction.</p>
+  </li>
+</ul>
+
+<h2 id="basics-of-cryptography">Basics of Cryptography</h2>
+
+<h3 id="cipher">Cipher</h3>
+
+<p>Algorithm used to encrypt and decrypt data. Ciphers are used when we need to obtain the original data.</p>
+
+<h4 id="block-cipher">Block Cipher</h4>
+
+<h4 id="stream-cipher">Stream Cipher</h4>
+
+<h3 id="hashes">Hashes</h3>
+
+<p>Hashes are used when there’s no need to obtain the original data again, meaning the encryption happens one-way only.</p>
+
+<p>A good example of this is proper password management, in which the password is hashed and the hash is saved in a database. Whenever we want to confirm if an inputed password matches the one we have saved, we hash the input and compare the hashes. The original password cannot be obtained from the hash.</p>
+
+<h3 id="encryption-algorithms">Encryption Algorithms</h3>
+
+<h4 id="symmetric">Symmetric</h4>
+
+<p>The same key is used to both encrypt and decrypt data. Examples: DES, AES, 3DES, etc.</p>
+
+<h4 id="asymetric">Asymetric</h4>
+
+<p>Uses two keys, one to encrypt and another one to decrypt the data. Examples: RSA, DSA, elyptical curve, etc.</p>
+
+<h3 id="confusion-and-difusion">Confusion and Difusion</h3>
+
+<ul>
+  <li>
+    <p>Confusion refers to the process of making the relationships between encrypted data and the cipher as complex as possible.</p>
+  </li>
+  <li>
+    <p>Difusion refers to the process of shifting bits of data throughout the encryption process. As single bits of the plaintext shift, half of the bits of ciphertext should change, thus making the decryption process rely on having the correct key, as capturing bits of the ciphertext and plaintext would not allow reverse engineering.</p>
+  </li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/Cryptography">Cryptography on wikipedia</a></li>
+  <li><a href="https://linuxacademy.com/cp/modules/view/id/264">CompTIA Security+ Certification Prep by Justin Mitchell</a></li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Icaro&#39;s Tech Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Icaro&#39;s Tech Blog</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/isfonzar"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">isfonzar</span></a></li><li><a href="https://www.twitter.com/isfonzar"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">isfonzar</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>This is my personal tech blog. Here I share my learnings, guides and insights about projects I&#39;m working on.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

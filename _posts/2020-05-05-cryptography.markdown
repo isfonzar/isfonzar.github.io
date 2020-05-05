@@ -1,11 +1,9 @@
 ---
 layout: page
 title:  "Cryptography"
-date:   2020-05-05 16:13:31 +0200
+date:   2020-05-05 20:00:00 +0200
 categories: security
 ---
-
-# Cryptography
 
 The word `cryptography` is derived from 2 greek words: _`kryptós`_ meaning "secret" or "hidden" and _`graphein`_ which means "writings".
 
