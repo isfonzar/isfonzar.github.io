@@ -7,7 +7,9 @@ permalink: /contents
 This is the full table of contents of the blog organized by topics and fields.
 
 - Infrastructure
-    - Kubernetes Cluster from Scratch - Part 1
+    - Kubernetes
+        - Kubernetes Cluster from Scratch - Part 1
+        - Kubernetes Cluster from Scratch - Part 2
 - Security
     - [Cryptography][cryptography]
     - [Public Key Infrastructure][public-key-infrastructure]

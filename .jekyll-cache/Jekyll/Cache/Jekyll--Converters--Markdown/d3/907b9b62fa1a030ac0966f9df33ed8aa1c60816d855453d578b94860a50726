@@ -1,9 +1,14 @@
-I"D<p>This is the full table of contents of the blog organized by topics and fields.</p>
+I"Õ<p>This is the full table of contents of the blog organized by topics and fields.</p>
 
 <ul>
   <li>Infrastructure
     <ul>
-      <li>Kubernetes Cluster from Scratch - Part 1</li>
+      <li>Kubernetes
+        <ul>
+          <li>Kubernetes Cluster from Scratch - Part 1</li>
+          <li>Kubernetes Cluster from Scratch - Part 2</li>
+        </ul>
+      </li>
     </ul>
   </li>
   <li>Security
@@ -18,6 +23,15 @@
   </li>
   <li>Programming
     <ul>
+      <li>Objected-Oriented
+        <ul>
+          <li>Design Patterns
+            <ul>
+              <li><a href="https://isfonzar.com/programming/objected-oriented/design-patterns/command/">Command Pattern</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
       <li>PHP
         <ul>
           <li><a href="https://isfonzar.com/programming/php/understanding-psr-in-php/">Understanding PSR in PHP</a></li>
