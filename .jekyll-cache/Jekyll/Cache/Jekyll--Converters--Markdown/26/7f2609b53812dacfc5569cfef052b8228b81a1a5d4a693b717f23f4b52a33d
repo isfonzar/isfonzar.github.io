@@ -1,0 +1,404 @@
+I"�I<h1 id="kubernetes-cluster-from-scratch---part-1">Kubernetes Cluster from Scratch - Part 1</h1>
+
+<p>This post is based on both <a href="https://github.com/kelseyhightower/kubernetes-the-hard-way">Kubernetes The Hard Way</a> by <a href="https://github.com/kelseyhightower">Kelsey Hightower</a> and the homonymous material from <a href="https://linuxacademy.com/course/kubernetes-the-hard-way/">William Boyd</a>.</p>
+
+<p>This is not intended as a substitute for the aforementioned content, and I would strongly advise to use them as reference instead, as they are both more complete than the content present here.</p>
+
+<h3 id="why-set-up-a-kubernetes-cluster-from-scratch">Why set up a Kubernetes Cluster from Scratch?</h3>
+
+<blockquote>
+  <p>“Kubernetes The Hard Way is optimized for learning, which means taking the long route to ensure you understand each task required to bootstrap a Kubernetes cluster”</p>
+
+  <p>- Kelsey Hightower, Kubernetes the Hard Way</p>
+</blockquote>
+
+<p>I decided to learn how to set up a kubernetes cluster from scratch because I was unsatisfied of using it without understanding exactly how it works. I believe that setting everything up from scratch is a great exercise and opportunity to learn more about how Kubernetes works.</p>
+
+<h2 id="geting-started">Geting Started</h2>
+
+<ul>
+  <li>To set-up a kubernetes cluster you’ll need 5 servers in total
+    <ul>
+      <li>2 will be used for the kubernetes controllers</li>
+      <li>2 for the kubernetes worker nodes</li>
+      <li>1 for the kubernetes API load balancer</li>
+    </ul>
+  </li>
+</ul>
+
+<p>It’s possible, for the sake of learning, to use less servers. The steps present here work just as fine with 1 of each kind of server as well as 10 or more. Also for the sake of learning, it’s good to have at least some redundancy in the controllers and in the workers. Kelsey Hightower recommends 3 of each, while William Boyd works with 2 of each, I decided to go with 2 as I believe it’s the minimum to get the most of the concepts.</p>
+
+<p>After provisioning all the servers and creating the users in them, I recommend creating the following environment variables on your workstation, as most of the commands will use those and it will save you the work of having to replace them.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">CONTROLLER0_HOST</span><span class="o">=</span>controller0.mylabserver.com
+<span class="nv">CONTROLLER0_IP</span><span class="o">=</span>172.34.0.0
+<span class="nv">CONTROLLER1_HOST</span><span class="o">=</span>controller1.mylabserver.com
+<span class="nv">CONTROLLER1_IP</span><span class="o">=</span>172.34.0.1
+<span class="nv">WORKER0_HOST</span><span class="o">=</span>worker0.mylabserver.com
+<span class="nv">WORKER0_IP</span><span class="o">=</span>172.34.1.0
+<span class="nv">WORKER1_HOST</span><span class="o">=</span>worker1.mylabserver.com
+<span class="nv">WORKER1_IP</span><span class="o">=</span>172.34.1.1
+<span class="nv">API_HOST</span><span class="o">=</span>kubernetes.mylabserver.com
+<span class="nv">API_IP</span><span class="o">=</span>172.34.2.0
+
+<span class="c"># Specify the user you will be connecting to those servers with</span>
+<span class="nv">CLOUD_USER</span><span class="o">=</span>cloud_user
+</code></pre></div></div>
+
+<h2 id="setting-up-the-certificates">Setting up the Certificates</h2>
+
+<p>The first step to set up our Kubernetes Cluster is to create the <a href="https://en.wikipedia.org/wiki/Public_key_infrastructure">Public key infrastructure</a> to manage the security and authentication in the cluster so nodes can communicate with each other and also with the Kubernetes API.</p>
+
+<h3 id="requirements">Requirements</h3>
+
+<p>Install Cloudflare’s <a href="https://github.com/cloudflare/cfssl">cfssl</a> on your workstation.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>wget <span class="nt">-q</span> <span class="nt">--show-progress</span> <span class="nt">--https-only</span> <span class="nt">--timestamping</span> <span class="se">\</span>
+  https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 <span class="se">\</span>
+  https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+
+<span class="nv">$ </span><span class="nb">chmod</span> +x cfssl_linux-amd64 cfssljson_linux-amd64
+
+<span class="nv">$ </span><span class="nb">sudo mv </span>cfssl_linux-amd64 /usr/local/bin/cfssl
+<span class="nv">$ </span><span class="nb">sudo mv </span>cfssljson_linux-amd64 /usr/local/bin/cfssljson
+
+<span class="nv">$ </span>cfssl version <span class="c"># check the installation</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">cfssl</code> is Cloudflare’s open-source PKI tool that will provide us with all the functionalities we need to set up the Certificate Authority (CA) and the certificates themselves.</p>
+
+<h3 id="provisioning-the-certificate-authority">Provisioning the Certificate Authority</h3>
+
+<p>Create the config files for the certificate authority</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Config file for the certificate authority</span>
+<span class="nb">cat</span> <span class="o">&gt;</span> ca-config.json <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+{
+  "signing": {
+    "default": {
+      "expiry": "8760h"
+    },
+    "profiles": {
+      "kubernetes": {
+        "usages": ["signing", "key encipherment", "server auth", "client auth"],
+        "expiry": "8760h"
+      }
+    }
+  }
+}
+</span><span class="no">EOF
+
+</span><span class="c"># Certificate signing request</span>
+<span class="nb">cat</span> <span class="o">&gt;</span> ca-csr.json <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+{
+  "CN": "Kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "Kubernetes",
+      "OU": "CA",
+      "ST": "Oregon"
+    }
+  ]
+}
+</span><span class="no">EOF
+
+</span><span class="c"># Generate the certificates</span>
+cfssl gencert <span class="nt">-initca</span> ca-csr.json | cfssljson <span class="nt">-bare</span> ca
+</code></pre></div></div>
+
+<p>As a result, we should now have the files <code class="highlighter-rouge">ca-key.pem</code> and <code class="highlighter-rouge">ca.pem</code>, the private certificate and the public certificate respectively.</p>
+
+<h3 id="client-and-server-certificates">Client and Server Certificates</h3>
+
+<p>Now that we have our CA, we can use it to generate the client and server certificates.</p>
+
+<h4 id="generate-the-admin-certificate">Generate the admin certificate</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create admin certificate signing request</span>
+<span class="nb">cat</span> <span class="o">&gt;</span> admin-csr.json <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+{
+  "CN": "admin",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "system:masters",
+      "OU": "Kubernetes The Hard Way",
+      "ST": "Oregon"
+    }
+  ]
+}
+</span><span class="no">EOF
+
+</span><span class="c"># Generate admin certificate</span>
+cfssl gencert <span class="se">\</span>
+  <span class="nt">-ca</span><span class="o">=</span>ca.pem <span class="se">\</span>
+  <span class="nt">-ca-key</span><span class="o">=</span>ca-key.pem <span class="se">\</span>
+  <span class="nt">-config</span><span class="o">=</span>ca-config.json <span class="se">\</span>
+  <span class="nt">-profile</span><span class="o">=</span>kubernetes <span class="se">\</span>
+  admin-csr.json | cfssljson <span class="nt">-bare</span> admin
+</code></pre></div></div>
+
+<p>As a result, we should now have the files <code class="highlighter-rouge">admin-key.pem</code> and <code class="highlighter-rouge">admin.pem</code>.</p>
+
+<h4 id="generate-the-clients-certificates">Generate the clients certificates</h4>
+
+<p>Generate certificates for the workers, in case you haven’t set up the environment variables in the beginning of this post, replace them in the following commands.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Certificate signing request for the first worker</span>
+<span class="nb">cat</span> <span class="o">&gt;</span> <span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span><span class="nt">-csr</span>.json <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+{
+  "CN": "system:node:</span><span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span><span class="sh">",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "system:nodes",
+      "OU": "Kubernetes The Hard Way",
+      "ST": "Oregon"
+    }
+  ]
+}
+</span><span class="no">EOF
+
+</span><span class="c"># Generate first worker's certificate</span>
+cfssl gencert <span class="se">\</span>
+  <span class="nt">-ca</span><span class="o">=</span>ca.pem <span class="se">\</span>
+  <span class="nt">-ca-key</span><span class="o">=</span>ca-key.pem <span class="se">\</span>
+  <span class="nt">-config</span><span class="o">=</span>ca-config.json <span class="se">\</span>
+  <span class="nt">-hostname</span><span class="o">=</span><span class="k">${</span><span class="nv">WORKER0_IP</span><span class="k">}</span>,<span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span> <span class="se">\</span>
+  <span class="nt">-profile</span><span class="o">=</span>kubernetes <span class="se">\</span>
+  <span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span><span class="nt">-csr</span>.json | cfssljson <span class="nt">-bare</span> <span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span>
+
+<span class="c"># Certificate signing request for the second worker</span>
+<span class="nb">cat</span> <span class="o">&gt;</span> <span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span><span class="nt">-csr</span>.json <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+{
+  "CN": "system:node:</span><span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span><span class="sh">",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "system:nodes",
+      "OU": "Kubernetes The Hard Way",
+      "ST": "Oregon"
+    }
+  ]
+}
+</span><span class="no">EOF
+
+</span><span class="c"># Generate second worker's certificate</span>
+cfssl gencert <span class="se">\</span>
+  <span class="nt">-ca</span><span class="o">=</span>ca.pem <span class="se">\</span>
+  <span class="nt">-ca-key</span><span class="o">=</span>ca-key.pem <span class="se">\</span>
+  <span class="nt">-config</span><span class="o">=</span>ca-config.json <span class="se">\</span>
+  <span class="nt">-hostname</span><span class="o">=</span><span class="k">${</span><span class="nv">WORKER1_IP</span><span class="k">}</span>,<span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span> <span class="se">\</span>
+  <span class="nt">-profile</span><span class="o">=</span>kubernetes <span class="se">\</span>
+  <span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span><span class="nt">-csr</span>.json | cfssljson <span class="nt">-bare</span> <span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span>
+</code></pre></div></div>
+
+<p>After executed, we should have the public and private keys for both of the workers.</p>
+
+<details>
+<summary>Generate certificate for the Kube Controller Manager</summary>
+<p>
+
+```bash
+$ cat &gt; kube-controller-manager-csr.json &lt;&lt; EOF
+{
+  "CN": "system:kube-controller-manager",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "system:kube-controller-manager",
+      "OU": "Kubernetes The Hard Way",
+      "ST": "Oregon"
+    }
+  ]
+}
+EOF
+
+$ cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
+```
+
+</p>
+</details>
+
+<details>
+<summary>Generate certificate for the Kube Proxy</summary>
+<p>
+
+```bash
+$ cat &gt; kube-proxy-csr.json &lt;&lt; EOF
+{
+  "CN": "system:kube-proxy",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "system:node-proxier",
+      "OU": "Kubernetes The Hard Way",
+      "ST": "Oregon"
+    }
+  ]
+}
+EOF
+
+$ cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-proxy-csr.json | cfssljson -bare kube-proxy
+```
+
+</p>
+</details>
+
+<details>
+<summary>Generate certificate for the Kube Scheduler Client</summary>
+<p>
+
+```bash
+$ cat &gt; kube-scheduler-csr.json &lt;&lt; EOF
+{
+  "CN": "system:kube-scheduler",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "system:kube-scheduler",
+      "OU": "Kubernetes The Hard Way",
+      "ST": "Oregon"
+    }
+  ]
+}
+EOF
+
+$ cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-scheduler-csr.json | cfssljson -bare kube-scheduler
+```
+
+</p>
+</details>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">CERT_HOSTNAME</span><span class="o">=</span>10.32.0.1,<span class="k">${</span><span class="nv">CONTROLLER0_IP</span><span class="k">}</span>,<span class="k">${</span><span class="nv">CONTROLLER0_HOST</span><span class="k">}</span>,<span class="k">${</span><span class="nv">CONTROLLER1_IP</span><span class="k">}</span>,<span class="k">${</span><span class="nv">CONTROLLER1_HOST</span><span class="k">}</span>,<span class="k">${</span><span class="nv">API_IP</span><span class="k">}</span>,<span class="k">${</span><span class="nv">API_HOST</span><span class="k">}</span>,127.0.0.1,localhost,kubernetes.default
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat</span> <span class="o">&gt;</span> kubernetes-csr.json <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+{
+  "CN": "kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "Kubernetes",
+      "OU": "Kubernetes The Hard Way",
+      "ST": "Oregon"
+    }
+  ]
+}
+</span><span class="no">EOF
+
+</span><span class="nv">$ </span>cfssl gencert <span class="se">\</span>
+  <span class="nt">-ca</span><span class="o">=</span>ca.pem <span class="se">\</span>
+  <span class="nt">-ca-key</span><span class="o">=</span>ca-key.pem <span class="se">\</span>
+  <span class="nt">-config</span><span class="o">=</span>ca-config.json <span class="se">\</span>
+  <span class="nt">-hostname</span><span class="o">=</span><span class="k">${</span><span class="nv">CERT_HOSTNAME</span><span class="k">}</span> <span class="se">\</span>
+  <span class="nt">-profile</span><span class="o">=</span>kubernetes <span class="se">\</span>
+  kubernetes-csr.json | cfssljson <span class="nt">-bare</span> kubernetes
+</code></pre></div></div>
+
+<p>You should get as the result, the files <code class="highlighter-rouge">kubernetes.pem</code> and <code class="highlighter-rouge">kubernetes-key.pem</code>.</p>
+
+<h3 id="generating-the-service-account-key-pair">Generating the Service Account Key Pair</h3>
+
+<p>This is the certificate that Kubernetes will use to authenticate service accounts connected to the cluster.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat</span> <span class="o">&gt;</span> service-account-csr.json <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+{
+  "CN": "service-accounts",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "Kubernetes",
+      "OU": "Kubernetes The Hard Way",
+      "ST": "Oregon"
+    }
+  ]
+}
+</span><span class="no">EOF
+
+</span><span class="nv">$ </span>cfssl gencert <span class="se">\</span>
+  <span class="nt">-ca</span><span class="o">=</span>ca.pem <span class="se">\</span>
+  <span class="nt">-ca-key</span><span class="o">=</span>ca-key.pem <span class="se">\</span>
+  <span class="nt">-config</span><span class="o">=</span>ca-config.json <span class="se">\</span>
+  <span class="nt">-profile</span><span class="o">=</span>kubernetes <span class="se">\</span>
+  service-account-csr.json | cfssljson <span class="nt">-bare</span> service-account
+</code></pre></div></div>
+
+<h3 id="distributing-the-certificate-files">Distributing the certificate files</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Copying certificates to workers</span>
+<span class="nv">$ </span>scp ca.pem <span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span><span class="nt">-key</span>.pem <span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span>.pem cloud_user@<span class="k">${</span><span class="nv">WORKER0_IP</span><span class="k">}</span>:~/
+<span class="nv">$ </span>scp ca.pem <span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span><span class="nt">-key</span>.pem <span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span>.pem cloud_user@<span class="k">${</span><span class="nv">WORKER1_IP</span><span class="k">}</span>:~/
+
+<span class="c"># Copying certificates to controllers</span>
+<span class="nv">$ </span>scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem <span class="se">\</span>
+    service-account-key.pem service-account.pem cloud_user@<span class="k">${</span><span class="nv">CONTROLLER0_IP</span><span class="k">}</span>:~/
+<span class="nv">$ </span>scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem <span class="se">\</span>
+    service-account-key.pem service-account.pem cloud_user@<span class="k">${</span><span class="nv">CONTROLLER1_IP</span><span class="k">}</span>:~/
+</code></pre></div></div>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>You should now have all the certificates present in the workers and in the controllers. This can be verified by logging into those nodes and checking for the presence of them.</p>
+:ET

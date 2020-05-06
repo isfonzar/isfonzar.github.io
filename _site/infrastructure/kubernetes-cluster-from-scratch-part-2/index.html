@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Kubernetes Cluster from Scratch - Part 2 | Icaro’s Tech Blog</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Kubernetes Cluster from Scratch - Part 2" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This is my personal tech blog. Here I share my learnings, guides and insights about projects I’m working on." />
+<meta property="og:description" content="This is my personal tech blog. Here I share my learnings, guides and insights about projects I’m working on." />
+<link rel="canonical" href="http://localhost:4000/infrastructure/kubernetes-cluster-from-scratch-part-2/" />
+<meta property="og:url" content="http://localhost:4000/infrastructure/kubernetes-cluster-from-scratch-part-2/" />
+<meta property="og:site_name" content="Icaro’s Tech Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-12-27T07:25:31+01:00" />
+<script type="application/ld+json">
+{"headline":"Kubernetes Cluster from Scratch - Part 2","dateModified":"2019-12-27T07:25:31+01:00","datePublished":"2019-12-27T07:25:31+01:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/infrastructure/kubernetes-cluster-from-scratch-part-2/"},"url":"http://localhost:4000/infrastructure/kubernetes-cluster-from-scratch-part-2/","description":"This is my personal tech blog. Here I share my learnings, guides and insights about projects I’m working on.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Icaro's Tech Blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Icaro&#39;s Tech Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About me</a><a class="page-link" href="/contents">Contents</a><a class="page-link" href="/quotes">Quotes</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Kubernetes Cluster from Scratch - Part 2</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-12-27T07:25:31+01:00" itemprop="datePublished">Dec 27, 2019
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h2 id="kubeconfigs">Kubeconfigs</h2>
+
+<p>Kubeconfigs are Kubernetes configuration file, it stores information about clusters, users, namespaces and authentication mechanisms. It contains the configuration data that we need in order to connect and to interact with a Kubernetes cluster.</p>
+
+<h2 id="requirements">Requirements</h2>
+
+<p>To generate the kubeconfig files, we need to have the <code class="highlighter-rouge">kubectl</code> tool installed</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>wget https://storage.googleapis.com/kubernetes-release/release/v1.10.2/bin/linux/amd64/kubectl
+<span class="nv">$ </span><span class="nb">chmod</span> +x kubectl
+<span class="nv">$ </span><span class="nb">sudo mv </span>kubectl /usr/local/bin/
+<span class="nv">$ </span>kubectl version <span class="nt">--client</span> <span class="c"># check the installation</span>
+</code></pre></div></div>
+
+<h2 id="generating-the-required-kubeconfigs">Generating the required kubeconfigs</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Ip address of the Kubernetes API</span>
+<span class="nv">KUBERNETES_ADDRESS</span><span class="o">=</span>172.34.2.0
+
+<span class="nv">WORKER0_HOST</span><span class="o">=</span>worker0.mylabserver.com
+<span class="nv">WORKER0_IP</span><span class="o">=</span>172.34.1.0
+<span class="nv">WORKER1_HOST</span><span class="o">=</span>worker1.mylabserver.com
+<span class="nv">WORKER1_IP</span><span class="o">=</span>172.34.1.1
+
+<span class="nv">CONTROLLER0_IP</span><span class="o">=</span>172.34.0.0
+<span class="nv">CONTROLLER1_IP</span><span class="o">=</span>172.34.0.1
+
+<span class="c"># Specify the user you will be connecting to those servers with</span>
+<span class="nv">CLOUD_USER</span><span class="o">=</span>cloud_user
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for </span>instance <span class="k">in</span> <span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span> <span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span><span class="p">;</span> <span class="k">do
+  </span>kubectl config set-cluster kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--certificate-authority</span><span class="o">=</span>ca.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--server</span><span class="o">=</span>https://<span class="k">${</span><span class="nv">KUBERNETES_ADDRESS</span><span class="k">}</span>:6443 <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span><span class="k">${</span><span class="nv">instance</span><span class="k">}</span>.kubeconfig
+
+  kubectl config set-credentials system:node:<span class="k">${</span><span class="nv">instance</span><span class="k">}</span> <span class="se">\</span>
+    <span class="nt">--client-certificate</span><span class="o">=</span><span class="k">${</span><span class="nv">instance</span><span class="k">}</span>.pem <span class="se">\</span>
+    <span class="nt">--client-key</span><span class="o">=</span><span class="k">${</span><span class="nv">instance</span><span class="k">}</span><span class="nt">-key</span>.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span><span class="k">${</span><span class="nv">instance</span><span class="k">}</span>.kubeconfig
+
+  kubectl config set-context default <span class="se">\</span>
+    <span class="nt">--cluster</span><span class="o">=</span>kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--user</span><span class="o">=</span>system:node:<span class="k">${</span><span class="nv">instance</span><span class="k">}</span> <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span><span class="k">${</span><span class="nv">instance</span><span class="k">}</span>.kubeconfig
+
+  kubectl config use-context default <span class="nt">--kubeconfig</span><span class="o">=</span><span class="k">${</span><span class="nv">instance</span><span class="k">}</span>.kubeconfig
+<span class="k">done</span>
+</code></pre></div></div>
+
+<p>Now, we generate the kubeconfig for kubeproxy. Only 1 file is needed for all the workers as they will share this file.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl config set-cluster kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--certificate-authority</span><span class="o">=</span>ca.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--server</span><span class="o">=</span>https://<span class="k">${</span><span class="nv">KUBERNETES_ADDRESS</span><span class="k">}</span>:6443 <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-proxy.kubeconfig
+
+  kubectl config set-credentials system:kube-proxy <span class="se">\</span>
+    <span class="nt">--client-certificate</span><span class="o">=</span>kube-proxy.pem <span class="se">\</span>
+    <span class="nt">--client-key</span><span class="o">=</span>kube-proxy-key.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-proxy.kubeconfig
+
+  kubectl config set-context default <span class="se">\</span>
+    <span class="nt">--cluster</span><span class="o">=</span>kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--user</span><span class="o">=</span>system:kube-proxy <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-proxy.kubeconfig
+
+  kubectl config use-context default <span class="nt">--kubeconfig</span><span class="o">=</span>kube-proxy.kubeconfig
+</code></pre></div></div>
+
+<p>Now, for the kube controller manager, here we use the default IP for localhost, the kube-controller-manager will not go through the load-balancer, but will access API from whatever host it is in.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl config set-cluster kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--certificate-authority</span><span class="o">=</span>ca.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--server</span><span class="o">=</span>https://127.0.0.1:6443 <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-controller-manager.kubeconfig
+
+  kubectl config set-credentials system:kube-controller-manager <span class="se">\</span>
+    <span class="nt">--client-certificate</span><span class="o">=</span>kube-controller-manager.pem <span class="se">\</span>
+    <span class="nt">--client-key</span><span class="o">=</span>kube-controller-manager-key.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-controller-manager.kubeconfig
+
+  kubectl config set-context default <span class="se">\</span>
+    <span class="nt">--cluster</span><span class="o">=</span>kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--user</span><span class="o">=</span>system:kube-controller-manager <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-controller-manager.kubeconfig
+
+  kubectl config use-context default <span class="nt">--kubeconfig</span><span class="o">=</span>kube-controller-manager.kubeconfig
+</code></pre></div></div>
+
+<p>The kube-scheduler kubeconfig:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl config set-cluster kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--certificate-authority</span><span class="o">=</span>ca.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--server</span><span class="o">=</span>https://127.0.0.1:6443 <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-scheduler.kubeconfig
+
+  kubectl config set-credentials system:kube-scheduler <span class="se">\</span>
+    <span class="nt">--client-certificate</span><span class="o">=</span>kube-scheduler.pem <span class="se">\</span>
+    <span class="nt">--client-key</span><span class="o">=</span>kube-scheduler-key.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-scheduler.kubeconfig
+
+  kubectl config set-context default <span class="se">\</span>
+    <span class="nt">--cluster</span><span class="o">=</span>kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--user</span><span class="o">=</span>system:kube-scheduler <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>kube-scheduler.kubeconfig
+
+  kubectl config use-context default <span class="nt">--kubeconfig</span><span class="o">=</span>kube-scheduler.kubeconfig
+</code></pre></div></div>
+
+<p>And lastly for the admin user:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl config set-cluster kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--certificate-authority</span><span class="o">=</span>ca.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--server</span><span class="o">=</span>https://127.0.0.1:6443 <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>admin.kubeconfig
+
+  kubectl config set-credentials admin <span class="se">\</span>
+    <span class="nt">--client-certificate</span><span class="o">=</span>admin.pem <span class="se">\</span>
+    <span class="nt">--client-key</span><span class="o">=</span>admin-key.pem <span class="se">\</span>
+    <span class="nt">--embed-certs</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>admin.kubeconfig
+
+  kubectl config set-context default <span class="se">\</span>
+    <span class="nt">--cluster</span><span class="o">=</span>kubernetes-the-hard-way <span class="se">\</span>
+    <span class="nt">--user</span><span class="o">=</span>admin <span class="se">\</span>
+    <span class="nt">--kubeconfig</span><span class="o">=</span>admin.kubeconfig
+
+  kubectl config use-context default <span class="nt">--kubeconfig</span><span class="o">=</span>admin.kubeconfig
+</code></pre></div></div>
+
+<p>If you open one of those files we just generate, you can see the certificate authority, the server (load balancer IP), username and certificates for the client. All the information we generated on Part 1 is now present within those files.</p>
+
+<h2 id="distributing-the-kubeconfig-files">Distributing the kubeconfig files</h2>
+
+<p>Moving the kubeconfig to the worker nodes</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>scp <span class="k">${</span><span class="nv">WORKER0_HOST</span><span class="k">}</span>.kubeconfig kube-proxy.kubeconfig <span class="k">${</span><span class="nv">CLOUD_USER</span><span class="k">}</span>@<span class="k">${</span><span class="nv">WORKER0_IP</span><span class="k">}</span>:~/
+scp <span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k">}</span>.kubeconfig kube-proxy.kubeconfig <span class="k">${</span><span class="nv">CLOUD_USER</span><span class="k">}</span>@<span class="k">${</span><span class="nv">WORKER1_IP</span><span class="k">}</span>:~/
+</code></pre></div></div>
+
+<p>Moving the kubeconfig files to the controller nodes:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig <span class="k">${</span><span class="nv">CLOUD_USER</span><span class="k">}</span>@<span class="k">${</span><span class="nv">CONTROLLER0_IP</span><span class="k">}</span>:~/
+scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig <span class="k">${</span><span class="nv">CLOUD_USER</span><span class="k">}</span>@<span class="k">${</span><span class="nv">CONTROLLER1_IP</span><span class="k">}</span>:~/
+</code></pre></div></div>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/">Organizing Cluster Access Using kubeconfig Files</a></li>
+</ul>
+
+  </div><a class="u-url" href="/infrastructure/kubernetes-cluster-from-scratch-part-2/" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Icaro&#39;s Tech Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Icaro&#39;s Tech Blog</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/isfonzar"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">isfonzar</span></a></li><li><a href="https://www.twitter.com/isfonzar"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">isfonzar</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>This is my personal tech blog. Here I share my learnings, guides and insights about projects I&#39;m working on.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
