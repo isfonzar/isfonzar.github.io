@@ -17,6 +17,11 @@ title: "Icaro's Tech Blog"
 #email: icaro.isf@gmail.com
 description: "This is my personal tech blog. Here I share my learnings, guides and insights about projects I'm working on."
 
+header_pages:
+  - "about.md"
+  - "contents.md"
+  - "quotes.md"
+
 google_analytics: "UA-165580556-1"
 
 baseurl: "" # the subpath of your site, e.g. /blog

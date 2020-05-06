@@ -1,11 +1,8 @@
 ---
-layout: post
-title:  "Understanding PSR in PHP"
+layout: page
 date:   2019-08-10 08:25:31 +0200
-categories: programming php
+title: Understanding PSR in PHP
 ---
-
-# Understanding PSR in PHP
 
 **PSR** in PHP stands for **PHP Standard Recommendation** and its purpose is to help standardize some programming concepts in PHP.
 

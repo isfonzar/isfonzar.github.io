@@ -1,0 +1,23 @@
+I"�<p>For this we will be using the tool <code class="highlighter-rouge">ssh-keygen</code>, <code class="highlighter-rouge">ssh-keygen</code> is a tool to generate, manage and convert authentication keys for SSH.</p>
+
+<p>The type of key to be generated can be specified with the <code class="highlighter-rouge">-t</code> argument. If left empty, a RSA key will be generated.</p>
+
+<p>First, we need to generate a key pair on the client.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh-keygen <span class="nt">-t</span> rsa
+</code></pre></div></div>
+
+<p>You’ll be prompted for a directory to store the key (press Enter to keep it in the default location) and for a passphrase. The passphrase is used to encrypt the private key file and offer an extra layer of protection in case the key is stolen. It can be changed later with the <code class="highlighter-rouge">-p</code> option, however, there’s no way to recover a lost passphrase and a new key must be generated. (You can leave it empty for now)</p>
+
+<p>Now that the key pair has been generated, all that’s needed is to add the key to the server you want to connect to.</p>
+
+<p>The <code class="highlighter-rouge">ssh-copy-id</code> tool provides us with an easy and secure tool to transfer the keys.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh-copy-id user@10.0.1.10
+</code></pre></div></div>
+
+<p>After that, you can test the new key and verify its success by logging into the server.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh user@10.0.1.10
+</code></pre></div></div>
+:ET

@@ -1,0 +1,22 @@
+I"ù<p><strong>PSR</strong> in PHP stands for <strong>PHP Standard Recommendation</strong> and its purpose is to help standardize some programming concepts in PHP.</p>
+
+<p>Those recommendations are proposed and approved by the <a href="https://www.php-fig.org/">PHP Framework Interop Group</a>, 
+a group of several framework developers and founders whose aim is to talk about the commonalities of their projects and 
+propose a common basis to work together. The full list of PSRs can be found <a href="https://www.php-fig.org/psr/">here</a>.</p>
+
+<p>Although it‚Äôs not mandatory to follow those rules, ideally, following a set of standards allow other developers to easily
+understand and work with your code and also makes it easier to integrate with third-party components (and vice-versa).</p>
+
+<p>This can be achieved by following one or more PSRs or other coding standards like <a href="https://pear.php.net/manual/en/standards.php">PEAR coding standards</a>
+for instance.</p>
+
+<p>More resources on PHP Code style can be found <a href="https://phptherightway.com/#code_style_guide">here</a>.</p>
+
+<h4 id="resources">Resources</h4>
+
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/PHP_Standard_Recommendation">https://en.wikipedia.org/wiki/PHP_Standard_Recommendation</a></li>
+  <li><a href="https://www.php-fig.org">https://www.php-fig.org</a></li>
+  <li><a href="https://phptherightway.com">https://phptherightway.com</a></li>
+</ul>
+:ET
