@@ -224,7 +224,115 @@ We just need to install it on our controller nodes.
 
 More information on the official kubernetes documentation on [configuring etcd](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/)
 
+### Creating the etcd cluster
 
+Log in both of the controller servers, for this you are going to execute commands in both of the controllers.
+
+First, let's install `etcd` for both of the controllers
+
+```bash
+# Download binaries
+wget -q --show-progress --https-only --timestamping \
+  "https://github.com/coreos/etcd/releases/download/v3.3.5/etcd-v3.3.5-linux-amd64.tar.gz"
+
+# Extract the contents
+tar -xvf etcd-v3.3.5-linux-amd64.tar.gz
+
+# Move the executables
+sudo mv etcd-v3.3.5-linux-amd64/etcd* /usr/local/bin/
+
+# Create some necessaries directories to run etcd
+sudo mkdir -p /etc/etcd /var/lib/etcd
+
+# Move the certificates file into the correct location
+# certificate authority, kubernetes certificate key and pem
+# don't move them, but copy, as they will be used later
+sudo cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
+```
+
+Now, we need to create the systemd file to etcd. Let's make some environment variables to make it easier:
+
+```bash
+CONTROLLER0_HOST=icaro1c.mylabserver.com
+CONTROLLER0_IP=172.31.98.105
+CONTROLLER1_HOST=icaro2c.mylabserver.com
+CONTROLLER1_IP=172.31.105.100
+
+# has to be different for each controller
+ETCD_NAME=icaro1c.mylabserver.com
+# using the hostname might make it easier to identify
+
+# internal/private ip of each of the servers
+INTERNAL_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+# this only works because the server's are amazon ec2 instances
+
+# all the servers in the cluster
+INITIAL_CLUSTER=${CONTROLLER0_HOST}=https://${CONTROLLER0_IP}:2380,${CONTROLLER1_HOST}=https://${CONTROLLER1_IP}:2380
+```
+
+Then, create the systemd unit file
+
+```bash
+cat << EOF | sudo tee /etc/systemd/system/etcd.service
+[Unit]
+Description=etcd
+Documentation=https://github.com/coreos
+
+[Service]
+ExecStart=/usr/local/bin/etcd \\
+  --name ${ETCD_NAME} \\
+  --cert-file=/etc/etcd/kubernetes.pem \\
+  --key-file=/etc/etcd/kubernetes-key.pem \\
+  --peer-cert-file=/etc/etcd/kubernetes.pem \\
+  --peer-key-file=/etc/etcd/kubernetes-key.pem \\
+  --trusted-ca-file=/etc/etcd/ca.pem \\
+  --peer-trusted-ca-file=/etc/etcd/ca.pem \\
+  --peer-client-cert-auth \\
+  --client-cert-auth \\
+  --initial-advertise-peer-urls https://${INTERNAL_IP}:2380 \\
+  --listen-peer-urls https://${INTERNAL_IP}:2380 \\
+  --listen-client-urls https://${INTERNAL_IP}:2379,https://127.0.0.1:2379 \\
+  --advertise-client-urls https://${INTERNAL_IP}:2379 \\
+  --initial-cluster-token etcd-cluster-0 \\
+  --initial-cluster ${INITIAL_CLUSTER} \\
+  --initial-cluster-state new \\
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+After the creation of the systemd unit file, it's necessary to start and enable the etcd service:
+
+```bash
+# necessary to do every time we modify/add a new unit file, so systemd see the changes
+sudo systemctl daemon-reload 
+
+# start automatically every time the server comes up
+sudo systemctl enable etcd
+
+# start the etcd service
+sudo systemctl start etcd
+```
+
+Verify if it's working by running:
+
+```bash
+# check if etcd is running
+sudo systemctl status etcd
+
+# get a list of all the etcd hosts
+sudo ETCDCTL_API=3 etcdctl member list \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/etcd/ca.pem \
+  --cert=/etc/etcd/kubernetes.pem \
+  --key=/etc/etcd/kubernetes-key.pem
+```
+
+The last command should display both servers, showing that the etcd cluster has been created correctly.
 
 ## References
 
