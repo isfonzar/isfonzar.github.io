@@ -253,13 +253,13 @@ sudo cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
 Now, we need to create the systemd file to etcd. Let's make some environment variables to make it easier:
 
 ```bash
-CONTROLLER0_HOST=icaro1c.mylabserver.com
-CONTROLLER0_IP=172.31.98.105
-CONTROLLER1_HOST=icaro2c.mylabserver.com
-CONTROLLER1_IP=172.31.105.100
+CONTROLLER0_HOST=controller0.host
+CONTROLLER0_IP=10.0.1.55
+CONTROLLER1_HOST=controller1.host
+CONTROLLER1_IP=10.0.1.196
 
 # has to be different for each controller
-ETCD_NAME=icaro1c.mylabserver.com
+ETCD_NAME=controller1.host
 # using the hostname might make it easier to identify
 
 # internal/private ip of each of the servers

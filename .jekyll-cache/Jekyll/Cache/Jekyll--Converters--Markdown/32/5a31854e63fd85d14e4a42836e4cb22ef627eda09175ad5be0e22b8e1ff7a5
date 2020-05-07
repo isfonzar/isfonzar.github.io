@@ -1,0 +1,51 @@
+I"<ul>
+  <li>Hardware
+    <ul>
+      <li><a href="/electronics">Electronics</a></li>
+    </ul>
+  </li>
+  <li>Infrastructure
+    <ul>
+      <li>Kubernetes
+        <ul>
+          <li>Kubernetes Cluster from Scratch - Part 1</li>
+          <li>Kubernetes Cluster from Scratch - Part 2</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Security
+    <ul>
+      <li><a href="/security/cryptography">Cryptography</a>
+        <ul>
+          <li><a href="/security/cryptography/asymmetric">Asymmetric Encryption</a></li>
+        </ul>
+      </li>
+      <li><a href="/security/cryptography/public-key-infrastructure">Public Key Infrastructure</a>
+        <ul>
+          <li><a href="/security/cryptography/how-to-generate-and-exchange-ssh-keys">How to generate and exchange SSH keys</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Programming
+    <ul>
+      <li>Objected-Oriented
+        <ul>
+          <li>Design Patterns
+            <ul>
+              <li><a href="/programming/object-oriented/design-patterns/command">Command Pattern</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>PHP
+        <ul>
+          <li><a href="/programming/php/understanding-psr-in-php">Understanding PSR in PHP</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+:ET
