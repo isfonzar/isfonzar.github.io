@@ -3,17 +3,19 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Icaro’s Tech Blog | This is my personal tech blog. Here I share my learnings, guides and insights about projects I’m working on.</title>
+<title>Symmetric Encryption | Icaro’s Tech Blog</title>
 <meta name="generator" content="Jekyll v4.0.0" />
-<meta property="og:title" content="Icaro’s Tech Blog" />
+<meta property="og:title" content="Symmetric Encryption" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="This is my personal tech blog. Here I share my learnings, guides and insights about projects I’m working on." />
 <meta property="og:description" content="This is my personal tech blog. Here I share my learnings, guides and insights about projects I’m working on." />
-<link rel="canonical" href="http://localhost:4000/" />
-<meta property="og:url" content="http://localhost:4000/" />
+<link rel="canonical" href="http://localhost:4000/security/cryptography/symmetric/" />
+<meta property="og:url" content="http://localhost:4000/security/cryptography/symmetric/" />
 <meta property="og:site_name" content="Icaro’s Tech Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-05T20:00:00+02:00" />
 <script type="application/ld+json">
-{"@type":"WebSite","url":"http://localhost:4000/","headline":"Icaro’s Tech Blog","name":"Icaro’s Tech Blog","description":"This is my personal tech blog. Here I share my learnings, guides and insights about projects I’m working on.","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","url":"http://localhost:4000/security/cryptography/symmetric/","headline":"Symmetric Encryption","dateModified":"2020-05-05T20:00:00+02:00","datePublished":"2020-05-05T20:00:00+02:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/security/cryptography/symmetric/"},"description":"This is my personal tech blog. Here I share my learnings, guides and insights about projects I’m working on.","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Icaro's Tech Blog" /></head>
 <body><header class="site-header" role="banner">
@@ -33,8 +35,40 @@
 </header>
 <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        <div class="home">
-</div>
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Symmetric Encryption</h1>
+  </header>
+
+  <div class="post-content">
+    <p>Symmetric algorithms are those that use the same key to encrypt and decrypt the data. A good analogy to understand symmetric encryption is thinking of a physical lock and key, the same key is used to both lock and unlock the door.</p>
+
+<p>Examples of symmetric algorithms:</p>
+
+<ul>
+  <li>
+    <p>Data Encryption Standard (DES) was the first commonly used symmetrical algorithm. It uses 64-bit keys, but 8 bits of those are used for parity, which means only 56 bits left for the actual key.</p>
+  </li>
+  <li>Triple-DES (3DES): DES started to become insufficient once the avaibility of computional power increased and brute-force attacks became more and more feasible. So DES was deprecated in 1998 and 3DES was created to fill the hole left behind while looking for a new better solution. 3DES encrypts with 112 or 168 bits, depending on the number of keys used.
+    <ul>
+      <li>DES EEE2: uses 2 keys, the encryption process happens three times, alternating keys.</li>
+      <li>DES EDE2: uses 2 keys, the first is used twice. Encryption-decryption-encryption.</li>
+      <li>DES EEE3: uses 3 keys, encryption happens 3 times, each time with a different key.</li>
+      <li>DES EDE3: uses 3 keys, operates by encrypting, decrypting, encrypting.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Advanced Encryption Standard (AES): In 2002, it was chosen as the replacement for DES and it’s now the most popular symmetric encryption algorithm. It can be deployed in key sizes of 128. 192 or 256 bits.</p>
+  </li>
+  <li>RC4 is a fast stream cipher, well suited for Wi-fi Equivalent Protection (WEP). It’s 40 bits in length, but it’s paired with a 24 bit IV to create a 64-bit WEP.</li>
+</ul>
+
+<p>Symmetric algorithms have some shortcomings which might be an issue depending on the situation. For instance, how do you exchange the key in a secure way? This problem is solved with the use of <a href="/security/cryptography#Asymmetric">asymmetric encryption</a>.</p>
+
+  </div>
+
+</article>
 
       </div>
     </main><footer class="site-footer h-card">

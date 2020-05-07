@@ -1,4 +1,4 @@
-I"þ4<h2 id="kubeconfigs">Kubeconfigs</h2>
+I"ñ@<h2 id="kubeconfigs">Kubeconfigs</h2>
 
 <p>Kubeconfigs are Kubernetes configuration file, it stores information about clusters, users, namespaces and authentication mechanisms. It contains the configuration data that we need in order to connect and to interact with a Kubernetes cluster.</p>
 
@@ -154,6 +154,56 @@ scp <span class="k">${</span><span class="nv">WORKER1_HOST</span><span class="k"
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig <span class="k">${</span><span class="nv">CLOUD_USER</span><span class="k">}</span>@<span class="k">${</span><span class="nv">CONTROLLER0_IP</span><span class="k">}</span>:~/
 scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig <span class="k">${</span><span class="nv">CLOUD_USER</span><span class="k">}</span>@<span class="k">${</span><span class="nv">CONTROLLER1_IP</span><span class="k">}</span>:~/
 </code></pre></div></div>
+
+<h2 id="generating-the-kubernetes-data-encryption-config">Generating the Kubernetes Data Encryption Config</h2>
+
+<p>Kubernetes supports the ability to encrypt secret data at rest, so any sensitive data is always encrypted. In order to make use of this feature, we need to provide kubernetes with an encryption key.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">CONTROLLER0_IP</span><span class="o">=</span>10.0.1.39
+<span class="nv">CONTROLLER1_IP</span><span class="o">=</span>10.0.1.90
+
+<span class="nv">CLOUD_USER</span><span class="o">=</span>cloud_user
+
+<span class="c"># Generate a random encryption key</span>
+<span class="nv">ENCRYPTION_KEY</span><span class="o">=</span><span class="si">$(</span><span class="nb">head</span> <span class="nt">-c</span> 32 /dev/urandom | <span class="nb">base64</span><span class="si">)</span>
+</code></pre></div></div>
+
+<p>Now, letâ€™s create the encryption config file:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> <span class="o">&gt;</span> encryption-config.yaml <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+kind: EncryptionConfig
+apiVersion: v1
+resources:
+  - resources:
+      - secrets
+    providers:
+      - aescbc:
+          keys:
+            - name: key1
+              secret: </span><span class="k">${</span><span class="nv">ENCRYPTION_KEY</span><span class="k">}</span><span class="sh">
+      - identity: {}
+</span><span class="no">EOF
+</span></code></pre></div></div>
+
+<p>And lastly, letâ€™s copy this encryption config file to the controller servers.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>scp encryption-config.yaml <span class="k">${</span><span class="nv">CLOUD_USER</span><span class="k">}</span>@<span class="k">${</span><span class="nv">CONTROLLER0_IP</span><span class="k">}</span>:~/
+scp encryption-config.yaml <span class="k">${</span><span class="nv">CLOUD_USER</span><span class="k">}</span>@<span class="k">${</span><span class="nv">CONTROLLER1_IP</span><span class="k">}</span>:~/
+</code></pre></div></div>
+
+<h2 id="bootstrapping-the-etcd-cluster">Bootstrapping the etcd cluster</h2>
+
+<p><a href="https://github.com/coreos/etcd">etcd</a> is a distributed key value store that provides a reliable way to store data across a cluster of machines.</p>
+
+<p>It provides a way to store data across a distributed cluster of machines and make sure the data is synchronized across all machines.</p>
+
+<p>Kubernetes uses etcd to store all of its internal data about cluster state.</p>
+
+<p>This data needs to be stored, but it also needs to be reliably synchronized across all controller nodes in the cluster.</p>
+
+<p>We just need to install it on our controller nodes.</p>
+
+<p>More information on the official kubernetes documentation on <a href="https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/">configuring etcd</a></p>
 
 <h2 id="references">References</h2>
 

@@ -171,6 +171,61 @@ scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfi
 scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig ${CLOUD_USER}@${CONTROLLER1_IP}:~/
 ```
 
+## Generating the Kubernetes Data Encryption Config
+
+Kubernetes supports the ability to encrypt secret data at rest, so any sensitive data is always encrypted. In order to make use of this feature, we need to provide kubernetes with an encryption key.
+
+```bash
+CONTROLLER0_IP=10.0.1.39
+CONTROLLER1_IP=10.0.1.90
+
+CLOUD_USER=cloud_user
+
+# Generate a random encryption key
+ENCRYPTION_KEY=$(head -c 32 /dev/urandom | base64)
+```
+
+Now, let's create the encryption config file:
+
+```bash
+cat > encryption-config.yaml << EOF
+kind: EncryptionConfig
+apiVersion: v1
+resources:
+  - resources:
+      - secrets
+    providers:
+      - aescbc:
+          keys:
+            - name: key1
+              secret: ${ENCRYPTION_KEY}
+      - identity: {}
+EOF
+```
+
+And lastly, let's copy this encryption config file to the controller servers.
+
+```bash
+scp encryption-config.yaml ${CLOUD_USER}@${CONTROLLER0_IP}:~/
+scp encryption-config.yaml ${CLOUD_USER}@${CONTROLLER1_IP}:~/
+```
+
+## Bootstrapping the etcd cluster
+
+[etcd](https://github.com/coreos/etcd) is a distributed key value store that provides a reliable way to store data across a cluster of machines.
+
+It provides a way to store data across a distributed cluster of machines and make sure the data is synchronized across all machines.
+
+Kubernetes uses etcd to store all of its internal data about cluster state.
+
+This data needs to be stored, but it also needs to be reliably synchronized across all controller nodes in the cluster.
+
+We just need to install it on our controller nodes. 
+
+More information on the official kubernetes documentation on [configuring etcd](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/)
+
+
+
 ## References
 
 - [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)

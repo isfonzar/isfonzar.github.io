@@ -1,0 +1,24 @@
+I"�<p>Symmetric algorithms are those that use the same key to encrypt and decrypt the data. A good analogy to understand symmetric encryption is thinking of a physical lock and key, the same key is used to both lock and unlock the door.</p>
+
+<p>Examples of symmetric algorithms:</p>
+
+<ul>
+  <li>
+    <p>Data Encryption Standard (DES) was the first commonly used symmetrical algorithm. It uses 64-bit keys, but 8 bits of those are used for parity, which means only 56 bits left for the actual key.</p>
+  </li>
+  <li>Triple-DES (3DES): DES started to become insufficient once the avaibility of computional power increased and brute-force attacks became more and more feasible. So DES was deprecated in 1998 and 3DES was created to fill the hole left behind while looking for a new better solution. 3DES encrypts with 112 or 168 bits, depending on the number of keys used.
+    <ul>
+      <li>DES EEE2: uses 2 keys, the encryption process happens three times, alternating keys.</li>
+      <li>DES EDE2: uses 2 keys, the first is used twice. Encryption-decryption-encryption.</li>
+      <li>DES EEE3: uses 3 keys, encryption happens 3 times, each time with a different key.</li>
+      <li>DES EDE3: uses 3 keys, operates by encrypting, decrypting, encrypting.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Advanced Encryption Standard (AES): In 2002, it was chosen as the replacement for DES and it’s now the most popular symmetric encryption algorithm. It can be deployed in key sizes of 128. 192 or 256 bits.</p>
+  </li>
+  <li>RC4 is a fast stream cipher, well suited for Wi-fi Equivalent Protection (WEP). It’s 40 bits in length, but it’s paired with a 24 bit IV to create a 64-bit WEP.</li>
+</ul>
+
+<p>Symmetric algorithms have some shortcomings which might be an issue depending on the situation. For instance, how do you exchange the key in a secure way? This problem is solved with the use of <a href="#Asymmetric">asymmetric encryption</a>.</p>
+:ET
