@@ -1,1 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-06T17:18:28+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Icaro’s Tech Blog</title><subtitle>This is my personal tech blog. Here I share my learnings, guides and insights about projects I'm working on.</subtitle></feed>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-06T22:51:35+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Icaro’s Tech Blog</title><subtitle>This is my personal tech blog. Here I share my learnings, guides and insights about projects I'm working on.</subtitle><entry><title type="html">Building an 8-bit Computer from Scratch - Part 1</title><link href="http://localhost:4000/hardware/electronics/building-an-8-bit-computer-part-1/" rel="alternate" type="text/html" title="Building an 8-bit Computer from Scratch - Part 1" /><published>2020-05-05T08:25:31+02:00</published><updated>2020-05-05T08:25:31+02:00</updated><id>http://localhost:4000/hardware/electronics/building-an-8-bit-computer-part-1</id><content type="html" xml:base="http://localhost:4000/hardware/electronics/building-an-8-bit-computer-part-1/">&lt;p&gt;This is going to be a series of posts on my journey to build an 8-bit computer.&lt;/p&gt;
+
+&lt;p&gt;The reason why I decided to build an 8-bit computer from scratch is because I thought it would be a great project to refresh up my electronics skills and learn some new ones.&lt;/p&gt;
+
+&lt;p&gt;For this, I am using &lt;a href=&quot;https://eater.net/8bit&quot;&gt;Ben Eater&lt;/a&gt;’s project as the main reference for my computer.&lt;/p&gt;
+
+&lt;p&gt;I started by buying a simple electronic kits from Elegoo from &lt;a href=&quot;https://www.amazon.de/-/en/gp/product/B01M7N4WB6/ref=ppx_yo_dt_b_asin_title_o03_s01?ie=UTF8&amp;amp;language=en_GB&amp;amp;psc=1&quot;&gt;Amazon&lt;/a&gt;. After a bit of search, I found out this would give me the most value for my money, as it already came with a Breadboard and a lot of components I would be using later on.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/8-bit-computer/001-electronics-kit.jpeg&quot; target=&quot;_blank&quot;&gt;
+    &lt;img src=&quot;/assets/8-bit-computer/001-electronics-kit.jpeg&quot; alt=&quot;elegoo-electronics-starter-kit&quot; width=&quot;250&quot; height=&quot;300&quot; /&gt;
+&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/8-bit-computer/002-electronics-kit.jpeg&quot; target=&quot;_blank&quot;&gt;
+    &lt;img src=&quot;/assets/8-bit-computer/002-electronics-kit.jpeg&quot; alt=&quot;elegoo-electronics-starter-kit&quot; width=&quot;250&quot; height=&quot;250&quot; /&gt;
+&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I also bought some 555 integrated circuits (chip). The 555 timer IC. The datasheet for the purchased 555 can be found &lt;a href=&quot;https://www.ti.com/lit/ds/symlink/se555m.pdf?HQS=TI-null-null-alldatasheets-df-pf-SEP-wwe&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/8-bit-computer/003-555-ic.jpeg&quot; target=&quot;_blank&quot;&gt;
+    &lt;img src=&quot;/assets/8-bit-computer/003-555-ic.jpeg&quot; alt=&quot;elegoo-electronics-starter-kit&quot; width=&quot;250&quot; height=&quot;300&quot; /&gt;
+&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;building-the-clock-module&quot;&gt;Building the Clock module&lt;/h2&gt;
+
+&lt;p&gt;The clock synchronizes all of the components in our computer and it’s the first component I’ve built.&lt;/p&gt;
+
+&lt;h3 id=&quot;anstable&quot;&gt;Anstable&lt;/h3&gt;
+
+&lt;h3 id=&quot;references&quot;&gt;References&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://eater.net/8bit/clock&quot;&gt;eater.net&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">This is going to be a series of posts on my journey to build an 8-bit computer.</summary></entry></feed>

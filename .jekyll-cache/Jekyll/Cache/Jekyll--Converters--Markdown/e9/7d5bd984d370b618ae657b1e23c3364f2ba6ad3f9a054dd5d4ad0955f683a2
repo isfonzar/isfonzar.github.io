@@ -1,0 +1,30 @@
+I"�<p>This is going to be a series of posts on my journey to build an 8-bit computer.</p>
+
+<p>The reason why I decided to build an 8-bit computer from scratch is because I thought it would be a great project to refresh up my electronics skills and learn some new ones.</p>
+
+<p>For this, I am using <a href="https://eater.net/8bit">Ben Eater</a>’s project as the main reference for my computer.</p>
+
+<p>I started by buying a simple electronic kits from Elegoo from <a href="https://www.amazon.de/-/en/gp/product/B01M7N4WB6/ref=ppx_yo_dt_b_asin_title_o03_s01?ie=UTF8&amp;language=en_GB&amp;psc=1">Amazon</a>. After a bit of search, I found out this would give me the most value for my money, as it already came with a Breadboard and a lot of components I would be using later on.</p>
+
+<p><a href="/assets/8-bit-computer/001-electronics-kit.jpeg" target="_blank">
+    <img src="/assets/8-bit-computer/001-electronics-kit.jpeg" alt="elegoo-electronics-starter-kit" width="250" height="300" />
+</a></p>
+
+<p><a href="/assets/8-bit-computer/002-electronics-kit.jpeg" target="_blank">
+    <img src="/assets/8-bit-computer/002-electronics-kit.jpeg" alt="elegoo-electronics-starter-kit" width="250" height="250" />
+</a></p>
+
+<p>I also bought some 555 integrated circuits (chip). The 555 timer IC. The datasheet for the purchased 555 can be found <a href="https://www.ti.com/lit/ds/symlink/se555m.pdf?HQS=TI-null-null-alldatasheets-df-pf-SEP-wwe">here</a>.</p>
+
+<p><a href="/assets/8-bit-computer/002-electronics-kit.jpeg" target="_blank">
+    <img src="/assets/8-bit-computer/003-555-ic.jpeg" alt="elegoo-electronics-starter-kit" width="200" height="250" />
+</a></p>
+
+<h2 id="building-the-clock-module">Building the Clock module</h2>
+
+<p>The clock synchronizes all of the components in our computer and it’s the first component I’ve built.</p>
+
+<h3 id="references">References</h3>
+
+<p><a href="https://eater.net/8bit/clock">eater.net</a></p>
+:ET
