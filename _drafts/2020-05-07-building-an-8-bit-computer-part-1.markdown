@@ -11,7 +11,7 @@ The reason why I decided to build an 8-bit computer from scratch is because I th
 
 For this, I am using [Ben Eater](https://eater.net/8bit)'s project as the main reference for my computer.
 
-I started by buying a simple electronic kits from Elegoo from [Amazon](https://www.amazon.de/-/en/gp/product/B01M7N4WB6/ref=ppx_yo_dt_b_asin_title_o03_s01?ie=UTF8&language=en_GB&psc=1). After a bit of search, I found out this would give me the most value for my money, as it already came with a Breadboard and a lot of components I would be using later on.
+I started by buying a simple electronic kits from Elegoo from [Amazon](https://www.amazon.de/-/en/gp/product/B01M7N4WB6/ref=ppx_yo_dt_b_asin_title_o03_s01?ie=UTF8&language=en_GB&psc=1). After a bit of search, I found out this would give me the most value for my money, as it already came with a Breadboard and some of the components I would be using later on.
 
 <a href="/assets/8-bit-computer/001-electronics-kit.jpeg" target="_blank">
     <img src="/assets/8-bit-computer/001-electronics-kit.jpeg" alt="elegoo-electronics-starter-kit" width="250" height="300"/>
@@ -29,12 +29,22 @@ I also bought some 555 integrated circuits (chip). The 555 timer IC. The datashe
 
 ## Building the Clock module
 
-The clock synchronizes all of the components in our computer and it's the first component I've built.
+The clock synchronizes all of the components in our computer and it's the first component in the project.
+In this project, it is split into 3 different modules:
 
-### Anstable
+- Astable clock
+- Monostable clock
+- Bistable
+
+### Astable 555 timer
+
+In astable mode, the 555 timer acts as an oscillator that generates a square wave.
+
+The frequency of this wave, or how many pulses it sends can be changed by adjusting the values of the two resistors.
 
 
 
 ### References
 
-[eater.net](https://eater.net/8bit/clock)
+- [eater.net](https://eater.net/8bit/clock)
+- [555 timer astable mode](https://www.circuitbasics.com/555-timer-basics-astable-mode/)
