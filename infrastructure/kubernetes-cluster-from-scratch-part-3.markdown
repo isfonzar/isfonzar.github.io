@@ -59,8 +59,8 @@ Then, let's setup some environment variables that will be used to create the `sy
 
 ```bash
 INTERNAL_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4) # this could have been set manually
-CONTROLLER0_IP=172.31.98.105
-CONTROLLER1_IP=172.31.105.100
+CONTROLLER0_IP=10.0.1.48
+CONTROLLER1_IP=10.0.1.239
 ```
 
 Then, generate the `kube-apiserver` unit file for `systemd`:
@@ -268,6 +268,120 @@ curl -H "Host: kubernetes.default.svc.cluster.local" -i http://127.0.0.1/healthz
 ```
 
 ### Set up RBAC for Kubelet Authorization
+
+RBAC is Role-Based Access Control and is the mechanism to create roles and assign permissions to different users.
+
+We need to make sure that the Kubernetes API has permission to access the Kubelet API on each node and perform certain common tasks, without this some functionalities might not work.
+
+So let's create a ClusterRose with the necessary permissions and assign that role to the Kubernetes user with a ClusterRoleBinding:
+
+We only need to run this command on one of the servers, since now we are communicating to the Kubernetes cluster itself and the changes will be propagated.
+
+```bash
+cat << EOF | kubectl apply --kubeconfig admin.kubeconfig -f -
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  name: system:kube-apiserver-to-kubelet
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes/proxy
+      - nodes/stats
+      - nodes/log
+      - nodes/spec
+      - nodes/metrics
+    verbs:
+      - "*"
+EOF
+```
+
+And then, bind the role to the kubernetes user:
+
+```bash
+cat << EOF | kubectl apply --kubeconfig admin.kubeconfig -f -
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: system:kube-apiserver
+  namespace: ""
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:kube-apiserver-to-kubelet
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: kubernetes
+EOF
+```
+
+### Setting up a Kube API Frontend Load Balancer
+
+Log in into the API Load Balancer server and first, install nginx:
+
+```bash
+sudo apt-get install -y nginx
+sudo systemctl enable nginx
+sudo mkdir -p /etc/nginx/tcpconf.d
+```
+
+We need to include the following at the end of the nginx.conf:
+
+```bash
+sudo vi /etc/nginx/nginx.conf
+```
+
+```
+include /etc/nginx/tcpconf.d/*;
+```
+
+That way, we cna add our configuration files in this folder and nginx will pick it up.
+
+For the next step, we can set the following environment variables to help us:
+
+```bash
+CONTROLLER0_IP=10.0.1.73
+CONTROLLER1_IP=10.0.1.35
+```
+
+And now we create the load balancer nginx config file:
+
+```bash
+cat << EOF | sudo tee /etc/nginx/tcpconf.d/kubernetes.conf
+stream {
+    upstream kubernetes {
+        server $CONTROLLER0_IP:6443;
+        server $CONTROLLER1_IP:6443;
+    }
+
+    server {
+        listen 6443;
+        listen 443; # not really necessary
+        proxy_pass kubernetes;
+    }
+}
+EOF
+```
+
+Then, we reload the nginx configuration:
+
+```bash
+sudo nginx -s reload
+```
+
+And we can verify it's working by running:
+
+```bash
+curl -k https://localhost:6443/version
+```
+
+(The `-k` is to make sure we don't have problems with certificates since they were just generated)
 
 #### Resources
 
