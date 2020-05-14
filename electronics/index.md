@@ -17,7 +17,11 @@ The flow of the electrons is called electric current and it's measured in [amper
 
 ## Electric Potential Difference (Voltage)
 
-Voltage or electric potential difference is what makes those electrons move.
+Voltage or electric potential difference is what makes those electrons move. We can say that the higher the voltage, the harder electrons can be "forced" around a circuit.
+
+### Ohm's Law
+
+
 
 Voltage is equal to the current x resistence.
 
