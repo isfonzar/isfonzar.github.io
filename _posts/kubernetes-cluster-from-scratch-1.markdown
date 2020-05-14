@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "How to set up a Kubernetes Cluster - Part 1"
-date:   2020-05-14 15:40:31 +0200
+date:   2020-05-14 12:40:31 +0200
 ---
 
 This is going to be a series of posts on how to set up a Kubernetes cluster from scratch.
