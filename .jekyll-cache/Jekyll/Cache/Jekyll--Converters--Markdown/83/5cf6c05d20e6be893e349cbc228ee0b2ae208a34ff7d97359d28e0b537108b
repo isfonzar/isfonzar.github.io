@@ -1,0 +1,98 @@
+I"�<p>This is going to be a series of posts on how to set up a Kubernetes cluster from scratch.
+Although there are many<sup><a href="https://aws.amazon.com/eks/">1</a>,<a href="https://cloud.google.com/kubernetes/">2</a>,<a href="https://www.oracle.com/cloud/compute/container-engine-kubernetes.html">3</a>,<a href="https://www.digitalocean.com/products/kubernetes/">4</a></sup> managed Kubernetes providers, setting up a Kubernetes cluster yourself helps you to better understand the underlying workings of it and that’s the goal of this series of posts.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<h3 id="what-is-kubernetes">What is Kubernetes?</h3>
+
+<p>Kubernetes is an <a href="https://github.com/kubernetes/kubernetes">open-source</a> container orchestration and management system. It was originally designed by Google in 2014 and donated to the <a href="https://www.cncf.io/">Cloud Native Computing Foundation</a> in 2015.</p>
+
+<h3 id="why-use-kubernetes">Why use Kubernetes?</h3>
+
+<p>Kubernetes provides the tools to help us with the task of running containers in a distributed environment.
+Kubernetes helps us with:</p>
+
+<ul>
+  <li>
+    <p>Ensuring high availability</p>
+  </li>
+  <li>
+    <p>Automaticly recovering when a container fails.</p>
+  </li>
+  <li>
+    <p>Auto-scaling based on metrics (for instance, CPU or memory consumption)</p>
+  </li>
+  <li>
+    <p>Service discovery</p>
+  </li>
+  <li>
+    <p>Automated rollouts and rollbacks</p>
+  </li>
+  <li>
+    <p>Automatic load balancing between containers</p>
+  </li>
+</ul>
+
+<p>Among many other tasks.</p>
+
+<p>Without an orchestration system for our containers, we would have to implement all of those solutions manually. Not only the resources could be better spent somewhere else (for instance, writing our application), but we would also be more prone to errors.</p>
+
+<h2 id="kubernetes-components">Kubernetes Components</h2>
+
+<p><img src="https://d33wubrfki0l68.cloudfront.net/7016517375d10c702489167e704dcb99e570df85/7bb53/images/docs/components-of-kubernetes.png" alt="" />
+<em>(Kubernetes cluster and its components, from the oficial kubernetes documentation)</em></p>
+
+<p>A Kubernetes cluster consists of an amount of worker machines (worker nodes), those will run the containers containing the applications and at least one worker node is necessary in a cluster.</p>
+
+<p>Those worker nodes will host the <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/"><strong>Pods</strong></a> (basic unit of kubernetes, holds the containers that run the applications).</p>
+
+<h3 id="control-plane">Control Plane</h3>
+
+<p>The Control Plane is the container orchestration layer that exposes the API and interfaces to define, deploy and manage the lifecycle of containers.<sup><a href="https://kubernetes.io/docs/reference/glossary/?all=true#term-control-plane">1</a></sup></p>
+
+<p>Although Control Plane’s components can be run on any machine in the cluster, in order to use the most out of Kubernetes, it’s recommended to use a dedicated machine for it.</p>
+
+<h4 id="kube-apiserver"><a href="https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/">kube-apiserver</a></h4>
+
+<p><code class="highlighter-rouge">kube-apiserver</code> exposes the Kubernetes API and is the main way of interaction within the cluster.</p>
+
+<h4 id="etcd"><a href="https://etcd.io/">etcd</a></h4>
+
+<p>etcd is an <a href="https://github.com/etcd-io/etcd">open-source</a> key-value store for distributed systems. It’s used by Kubernetes to coordinate all the nodes in the cluster and share data with all its members.</p>
+
+<h4 id="kube-scheduler">kube-scheduler</h4>
+
+<p>The kube-scheduler is a component that assigns Pods to nodes, selecting the most suitable node for a pod by weighting in multiple factors like resources requirements, replication, etc.</p>
+
+<h4 id="kube-controller-manager"><a href="https://kubernetes.io/docs/concepts/overview/components/#kube-controller-manager">kube-controller-manager</a></h4>
+
+<p>This component of the Control Plane is responsible for running controller processes. It contains multiple processes that, in order to reduce complexity, run as a single process.</p>
+
+<h4 id="cloud-controller-manager">cloud-controller-manager</h4>
+
+<p>This is the component that holds cloud-specific control logic, since we will not be using a cloud provider in this guide, this will not be present in our control plane.</p>
+
+<h3 id="worker-nodes">Worker Nodes</h3>
+
+<h4 id="kubelet">kubelet</h4>
+
+<p>kubelet is an agent that runs on each node in the cluster, it makes sure that containers are running in a pod.</p>
+
+<h4 id="kube-proxy">kube-proxy</h4>
+
+<p>This is the component that maintains network rules on nodes and allows for the pods to communicate inside and outside of the cluster.</p>
+
+<h4 id="container-runtime">Container runtime</h4>
+
+<p>The software responsible for running the containers. Example: Docker, containerd, etc.</p>
+
+<hr />
+
+<p>This first post is an introduction to the cluster architecture and its components. In the next part, we will begin setting up our cluster starting from the Control Plane.</p>
+
+<h2 id="resources">Resources</h2>
+
+<ul>
+  <li><a href="https://kubernetes.io/docs/home/">Kubernetes Oficial documentation</a></li>
+</ul>
+:ET

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Setting up a Kubernetes Cluster - Part 1"
-date:   2020-05-14 08:40:31 +0200
+date:   2020-05-14 17:40:31 +0200
 categories: infrastructure kubernetes
 ---
 

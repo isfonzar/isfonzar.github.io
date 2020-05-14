@@ -1,1 +1,97 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-11T18:53:47+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Icaro’s Tech Blog</title><subtitle>This is my personal tech blog. Here I share my learnings, guides and insights about projects I'm working on.</subtitle></feed>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-05-14T17:50:00+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Icaro’s Tech Blog</title><subtitle>This is my personal tech blog. Here I share my learnings, guides and insights about projects I'm working on.</subtitle><entry><title type="html">Setting up a Kubernetes Cluster - Part 1</title><link href="http://localhost:4000/infrastructure/kubernetes/setting-up-a-kubernetes-cluster-1/" rel="alternate" type="text/html" title="Setting up a Kubernetes Cluster - Part 1" /><published>2020-05-14T17:40:31+02:00</published><updated>2020-05-14T17:40:31+02:00</updated><id>http://localhost:4000/infrastructure/kubernetes/setting-up-a-kubernetes-cluster-1</id><content type="html" xml:base="http://localhost:4000/infrastructure/kubernetes/setting-up-a-kubernetes-cluster-1/">&lt;p&gt;This is going to be a series of posts on how to set up a Kubernetes cluster from scratch.
+Although there are many&lt;sup&gt;&lt;a href=&quot;https://aws.amazon.com/eks/&quot;&gt;1&lt;/a&gt;,&lt;a href=&quot;https://cloud.google.com/kubernetes/&quot;&gt;2&lt;/a&gt;,&lt;a href=&quot;https://www.oracle.com/cloud/compute/container-engine-kubernetes.html&quot;&gt;3&lt;/a&gt;,&lt;a href=&quot;https://www.digitalocean.com/products/kubernetes/&quot;&gt;4&lt;/a&gt;&lt;/sup&gt; managed Kubernetes providers, setting up a Kubernetes cluster yourself helps you to better understand the underlying workings of it and that’s the goal of this series of posts.&lt;/p&gt;
+
+&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
+
+&lt;h3 id=&quot;what-is-kubernetes&quot;&gt;What is Kubernetes?&lt;/h3&gt;
+
+&lt;p&gt;Kubernetes is an &lt;a href=&quot;https://github.com/kubernetes/kubernetes&quot;&gt;open-source&lt;/a&gt; container orchestration and management system. It was originally designed by Google in 2014 and donated to the &lt;a href=&quot;https://www.cncf.io/&quot;&gt;Cloud Native Computing Foundation&lt;/a&gt; in 2015.&lt;/p&gt;
+
+&lt;h3 id=&quot;why-use-kubernetes&quot;&gt;Why use Kubernetes?&lt;/h3&gt;
+
+&lt;p&gt;Kubernetes provides the tools to help us with the task of running containers in a distributed environment.
+Kubernetes helps us with:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Ensuring high availability&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Automaticly recovering when a container fails.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Auto-scaling based on metrics (for instance, CPU or memory consumption)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Service discovery&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Automated rollouts and rollbacks&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Automatic load balancing between containers&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Among many other tasks.&lt;/p&gt;
+
+&lt;p&gt;Without an orchestration system for our containers, we would have to implement all of those solutions manually. Not only the resources could be better spent somewhere else (for instance, writing our application), but we would also be more prone to errors.&lt;/p&gt;
+
+&lt;h2 id=&quot;kubernetes-components&quot;&gt;Kubernetes Components&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://d33wubrfki0l68.cloudfront.net/7016517375d10c702489167e704dcb99e570df85/7bb53/images/docs/components-of-kubernetes.png&quot; alt=&quot;&quot; /&gt;
+&lt;em&gt;(Kubernetes cluster and its components, from the oficial kubernetes documentation)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;A Kubernetes cluster consists of an amount of worker machines (worker nodes), those will run the containers containing the applications and at least one worker node is necessary in a cluster.&lt;/p&gt;
+
+&lt;p&gt;Those worker nodes will host the &lt;a href=&quot;https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/&quot;&gt;&lt;strong&gt;Pods&lt;/strong&gt;&lt;/a&gt; (basic unit of kubernetes, holds the containers that run the applications).&lt;/p&gt;
+
+&lt;h3 id=&quot;control-plane&quot;&gt;Control Plane&lt;/h3&gt;
+
+&lt;p&gt;The Control Plane is the container orchestration layer that exposes the API and interfaces to define, deploy and manage the lifecycle of containers.&lt;sup&gt;&lt;a href=&quot;https://kubernetes.io/docs/reference/glossary/?all=true#term-control-plane&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+
+&lt;p&gt;Although Control Plane’s components can be run on any machine in the cluster, in order to use the most out of Kubernetes, it’s recommended to use a dedicated machine for it.&lt;/p&gt;
+
+&lt;h4 id=&quot;kube-apiserver&quot;&gt;&lt;a href=&quot;https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/&quot;&gt;kube-apiserver&lt;/a&gt;&lt;/h4&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;kube-apiserver&lt;/code&gt; exposes the Kubernetes API and is the main way of interaction within the cluster.&lt;/p&gt;
+
+&lt;h4 id=&quot;etcd&quot;&gt;&lt;a href=&quot;https://etcd.io/&quot;&gt;etcd&lt;/a&gt;&lt;/h4&gt;
+
+&lt;p&gt;etcd is an &lt;a href=&quot;https://github.com/etcd-io/etcd&quot;&gt;open-source&lt;/a&gt; key-value store for distributed systems. It’s used by Kubernetes to coordinate all the nodes in the cluster and share data with all its members.&lt;/p&gt;
+
+&lt;h4 id=&quot;kube-scheduler&quot;&gt;kube-scheduler&lt;/h4&gt;
+
+&lt;p&gt;The kube-scheduler is a component that assigns Pods to nodes, selecting the most suitable node for a pod by weighting in multiple factors like resources requirements, replication, etc.&lt;/p&gt;
+
+&lt;h4 id=&quot;kube-controller-manager&quot;&gt;&lt;a href=&quot;https://kubernetes.io/docs/concepts/overview/components/#kube-controller-manager&quot;&gt;kube-controller-manager&lt;/a&gt;&lt;/h4&gt;
+
+&lt;p&gt;This component of the Control Plane is responsible for running controller processes. It contains multiple processes that, in order to reduce complexity, run as a single process.&lt;/p&gt;
+
+&lt;h4 id=&quot;cloud-controller-manager&quot;&gt;cloud-controller-manager&lt;/h4&gt;
+
+&lt;p&gt;This is the component that holds cloud-specific control logic, since we will not be using a cloud provider in this guide, this will not be present in our control plane.&lt;/p&gt;
+
+&lt;h3 id=&quot;worker-nodes&quot;&gt;Worker Nodes&lt;/h3&gt;
+
+&lt;h4 id=&quot;kubelet&quot;&gt;kubelet&lt;/h4&gt;
+
+&lt;p&gt;kubelet is an agent that runs on each node in the cluster, it makes sure that containers are running in a pod.&lt;/p&gt;
+
+&lt;h4 id=&quot;kube-proxy&quot;&gt;kube-proxy&lt;/h4&gt;
+
+&lt;p&gt;This is the component that maintains network rules on nodes and allows for the pods to communicate inside and outside of the cluster.&lt;/p&gt;
+
+&lt;h4 id=&quot;container-runtime&quot;&gt;Container runtime&lt;/h4&gt;
+
+&lt;p&gt;The software responsible for running the containers. Example: Docker, containerd, etc.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;This first post is an introduction to the cluster architecture and its components. In the next part, we will begin setting up our cluster starting from the Control Plane.&lt;/p&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://kubernetes.io/docs/home/&quot;&gt;Kubernetes Oficial documentation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">This is going to be a series of posts on how to set up a Kubernetes cluster from scratch. Although there are many1,2,3,4 managed Kubernetes providers, setting up a Kubernetes cluster yourself helps you to better understand the underlying workings of it and that’s the goal of this series of posts.</summary></entry></feed>

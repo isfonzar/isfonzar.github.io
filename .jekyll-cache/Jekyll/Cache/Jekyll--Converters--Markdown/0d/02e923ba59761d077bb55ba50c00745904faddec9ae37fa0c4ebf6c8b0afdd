@@ -1,4 +1,4 @@
-I"<p>Electronics is the branch of physics that deals with the behavior of electrons.</p>
+I"�<p>Electronics is the branch of physics that deals with the behavior of electrons.</p>
 
 <h2 id="what-is-electricity">What is electricity?</h2>
 
@@ -12,7 +12,9 @@
 
 <h2 id="electric-potential-difference-voltage">Electric Potential Difference (Voltage)</h2>
 
-<p>Voltage or electric potential difference is what makes those electrons move.</p>
+<p>Voltage or electric potential difference is what makes those electrons move. We can say that the higher the voltage, the harder electrons can be “forced” around a circuit.</p>
+
+<h3 id="ohms-law">Ohm’s Law</h3>
 
 <p>Voltage is equal to the current x resistence.</p>
 
