@@ -198,3 +198,76 @@ EOF
 These flags are different from Kubernetes the Hard Way, because in our cloud server setup, the kubelets won't pick up the correct hostname, so this would cause some problems.
 For things to work on this set-up we need those lines.
 The `--alow-privileged=true`, we need that, because the network run in pod so we need to allow it.
+
+## Configuring kubeproxy
+
+Let's set up our systemd service for kubeproxy and then start-up all of our 3 services.
+
+Execute the following commands on both of the worker nodes:
+
+Move the files into place:
+
+```bash
+sudo mv kube-proxy.kubeconfig /var/lib/kube-proxy/kubeconfig
+```
+
+Then, create the kube-proxy config file:
+
+```bash
+cat << EOF | sudo tee /var/lib/kube-proxy/kube-proxy-config.yaml
+kind: KubeProxyConfiguration
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+clientConnection:
+  kubeconfig: "/var/lib/kube-proxy/kubeconfig"
+mode: "iptables"
+clusterCIDR: "10.200.0.0/16"
+EOF
+```
+
+Lastly, create the kube-proxy unit file:
+
+```bash
+cat << EOF | sudo tee /etc/systemd/system/kube-proxy.service
+[Unit]
+Description=Kubernetes Kube Proxy
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+ExecStart=/usr/local/bin/kube-proxy \\
+  --config=/var/lib/kube-proxy/kube-proxy-config.yaml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+The flag `--config=/var/lib/kube-proxy/kube-proxy-config.yaml` points at the kube-proxy configuration file.
+
+Now that all of our services are configured, we can start them up
+
+```bash
+# Reload systemd unit files (needed to run everytime we update unit files)
+sudo systemctl daemon-reload
+
+sudo systemctl enable containerd kubelet kube-proxy
+
+sudo systemctl start containerd kubelet kube-proxy
+```
+
+Then, we can check the status of the services:
+
+```bash
+sudo systemctl status containerd kubelet kube-proxy
+```
+
+They should be all active and running.
+
+Then, verify from any controller node by running
+
+```bash
+kubectl get nodes
+```
+
+This should  return the hostnames for both of the worker nodes. They should be in the NotReady status at this point.
