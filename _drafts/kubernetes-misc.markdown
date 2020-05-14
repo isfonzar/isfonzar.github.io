@@ -1,0 +1,1 @@
+- Pods: A pod is the basic execution unit of a Kubernetes application and it represents processes running on the cluster. It encapsulates an application's containers, storage resources, network identity (IP address) and configurations on how the containers should run. It contains one or more containers.
