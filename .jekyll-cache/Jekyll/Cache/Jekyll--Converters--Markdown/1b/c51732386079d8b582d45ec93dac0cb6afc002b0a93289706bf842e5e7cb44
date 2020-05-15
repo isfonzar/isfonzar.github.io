@@ -1,3 +1,0 @@
-I"/<p>This is going to be a series of posts on how to set up a Kubernetes cluster from scratch.
-Although there are many<sup><a href="https://aws.amazon.com/eks/">1</a>,<a href="https://cloud.google.com/kubernetes/">2</a>,<a href="https://www.oracle.com/cloud/compute/container-engine-kubernetes.html">3</a>,<a href="https://www.digitalocean.com/products/kubernetes/">4</a></sup> managed Kubernetes providers, setting up a Kubernetes cluster yourself helps you to better understand the underlying workings of it and that’s the goal of this series of posts.</p>
-:ET
