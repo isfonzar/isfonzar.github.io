@@ -14,3 +14,4 @@ The last two digits (sometimes three) digits (-00) indicate which IC this is in 
 - 7402 four two-input NOR gate
 
 ## 4000 series
+
