@@ -1,1 +1,0 @@
-SR-latch bistable
