@@ -93,6 +93,7 @@ Bistable mode means that our clock will alternate between two stable modes. Unli
 To finish the clock module, I connected the outputs of the `Astable clock` and the `Monostable clock` to some logical gates that will feed the `Bistable clock`.
 
 ![](/assets/8-bit-computer/computer-clock-1.gif)
+![](/assets/8-bit-computer/computer-clock-2.gif)
 
 #### Next Steps
 
