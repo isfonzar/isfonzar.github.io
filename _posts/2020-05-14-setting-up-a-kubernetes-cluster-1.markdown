@@ -1,7 +1,8 @@
 ---
 layout: post
-title:  "Setting up a Kubernetes Cluster - Part 1"
+title:  "Setting up a Kubernetes Single Node Cluster"
 date:   2020-05-14 12:40:31 +0200
+modified_date: 2020-05-26 15:30:00 +0200
 categories: infrastructure kubernetes
 comment: true
 ---
@@ -34,7 +35,7 @@ Kubernetes helps us with:
 
 Among many other tasks. 
 
-Without an orchestration system for our containers, we would have to implement all of those solutions manually. Not only the resources could be better spent somewhere else (for instance, writing our application), but we would also be more prone to errors.
+Without an orchestration system for our containers, we would have to implement all of those solutions manually (or be left without them). Not only the resources could be better spent somewhere else, for instance, writing our application, but we would also be more prone to errors.
 
 ## Kubernetes Components
 
