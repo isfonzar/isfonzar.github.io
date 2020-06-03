@@ -6,6 +6,10 @@ modified_date: 2020-05-25 21:00:00 +0200
 categories: hardware electronics
 ---
 
+## SR Latch
+
+
+
 A bus is basically a common connection point for multiple components in the computer.
 Our bus will
 
