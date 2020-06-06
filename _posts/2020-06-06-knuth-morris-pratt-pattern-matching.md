@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Using Knuth-Morris-Pratt Algorithm for pattern matching"
-date:   2020-06-05 22:00:00 +0200
+date:   2020-06-06 17:00:00 +0200
 categories: algorithms
 ---
 
@@ -83,19 +83,20 @@ p: aaab
 
 For this input, our algorithm would start matching the main string on every position, only to fail and then resume again, resulting in a runtime complexity of `O(m*n)`, in which `n` is the length of the main string and `m` the length of the pattern string.
 
-We can do better than that.
+There is, however, a way to solve this linearly.
 
 ## Solving the problem with the KMP Algorithm
 
-The [Knuth-Morris-Pratt algorithm](https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm) resolves this set-back that happens when our pattern has identical sub-patterns that repeat within it. The idea behind the algorithm is to pre-process our string, identify those repeating sub-patterns and then avoiding having to backtrack the whole pattern string.
+The [Knuth-Morris-Pratt algorithm](https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm) resolves this set-back that happens when our pattern has identical sub-patterns that repeat within it. The idea behind the algorithm is to pre-process our string, identify those repeating sub-patterns and then avoiding having to backtrack the whole pattern string when a mismatch occurs.
 
 ### The pre-processing
 
-First step is to identify prefix and suffix within the pattern.
+The key to avoid the backtracking that happens in the naive approach is pre-processing the pattern string. 
 
 ```
-Prefix: "a", "ab", "abc"
-Sufix: "c", 
+pattern: | a | b | c | a | b | d | e | a |
+index:   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 
+value:   | 0 | 0 | 0 | 1 | 2 | 0 | 0 | 4 |
 ```
 
 Our objective is to identify the longest suffix that's also a prefix.
