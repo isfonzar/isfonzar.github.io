@@ -122,20 +122,20 @@ We can easily build this table with the following algorithm:
 
 ```cpp
 vector<int> preProcess(string s) {
-        vector<int> lps(s.size(), 0);
-        
-        for (int i = 1, j = 0; i < s.size();) {
-            if (s[i] == s[j]) {
-                lps[i++] = ++j;
-            } else if (j != 0) {
-                j = lps[j - 1];
-            } else {
-                lps[i++] = 0;
-            }
+    vector<int> lps(s.size(), 0);
+    
+    for (int i = 1, j = 0; i < s.size();) {
+        if (s[i] == s[j]) {
+            lps[i++] = ++j;
+        } else if (j != 0) {
+            j = lps[j - 1];
+        } else {
+            lps[i++] = 0;
         }
-        
-        return lps;
     }
+    
+    return lps;
+}
 ```
 
 This piece of code builds the **longest prefix-suffix** (lps) table, also refered to prefix table, and it does so by iterating two pointers over the string (`i` and `j`). `i` starts from the position `1` and `j` from the position `0`.
@@ -149,28 +149,28 @@ However, if `s[i]` and `s[j]` are not equal, we first check to see if there's a 
 
 ```cpp
 int strStr(string haystack, string needle) {
-        if (needle.size() == 0) {
-            return 0;
-        }
-        
-        vector<int> lps = preProcess(needle);
-        
-        for (int i = 0, j = 0; i < haystack.size();) {
-            if (haystack[i] == needle[j]) {
-                i++;
-                j++;
-                if (j == needle.size())
-                    return i - needle.size();
-            } else if (j != 0) {
-                j = lps[j - 1];
-            } else {
-                i++;
-                j = 0;
-            }
-        }
-        
-        return -1;
+    if (needle.size() == 0) {
+        return 0;
     }
+    
+    vector<int> lps = preProcess(needle);
+    
+    for (int i = 0, j = 0; i < haystack.size();) {
+        if (haystack[i] == needle[j]) {
+            i++;
+            j++;
+            if (j == needle.size())
+                return i - needle.size();
+        } else if (j != 0) {
+            j = lps[j - 1];
+        } else {
+            i++;
+            j = 0;
+        }
+    }
+    
+    return -1;
+}
 ```
 
 With this approach we end up with a runtime complexity of **`O(m+n)`** in the worse case, in which `m` is the size of the pattern string and `n` the size of the main string. However, it's worth noting that as a drawback for the reduced runtime complexity, the KMP algorithm raises the space complexity to `O(m)` (since we now have to store the pre-processed pattern string).
