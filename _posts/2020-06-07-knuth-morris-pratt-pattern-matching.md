@@ -143,7 +143,7 @@ We then advance checking for equality, if `s[i]` and `s[j]` are equal, we increm
 
 By doing so, what we are doing is saving the index we will have to return to if a mismatch occurs.
 
-However, if s[i] and s[j] are not equal, we first check to see if there's a pattern we can continue from with `j`, if not we then save the value 0 in the table (meaning the matching algorithm will have to start from the beginning of the pattern string).
+However, if `s[i]` and `s[j]` are not equal, we first check to see if there's a pattern we can continue from with `j`, if not we then save the value `0` in the table (meaning the matching algorithm will have to start from the beginning of the pattern string).
 
 ### Solving the strStr() problem with the KMP Algorithm
 
