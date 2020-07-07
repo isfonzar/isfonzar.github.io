@@ -113,7 +113,7 @@ Knowing that, we can create a table to help us identify those repetions in suffi
 ```
 pattern: | a | b | c | a | b | d | e | a |
 index:   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 
-value:   | 0 | 0 | 0 | 1 | 2 | 0 | 0 | 4 |
+value:   | 0 | 0 | 0 | 1 | 2 | 0 | 0 | 1 |
 ```
 
 This table illustrates what we just did, if a mismatch occurs at a certain index, check the value of the index just behind it and continue trying to match from there.
